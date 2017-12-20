@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"time"
-	"bytes"
 )
 
 type Paste struct {
@@ -28,7 +28,7 @@ func (p *Paste) Download() {
 	}
 
 	resp := get(p.ScrapeUrl)
-    p.Content = string(resp)
+	p.Content = string(resp)
 	conf.keys[p.Key] = time.Now()
 }
 
@@ -36,7 +36,7 @@ func (p *Paste) String() string {
 	var b bytes.Buffer
 	rule := "-----------------"
 
-    b.WriteString(fmt.Sprintf("%s\n", rule))
+	b.WriteString(fmt.Sprintf("%s\n", rule))
 	b.WriteString(fmt.Sprintf("Link: %s\n", p.Url))
 	b.WriteString(fmt.Sprintf("Posted: %s\n", p.Date))
 	b.WriteString(fmt.Sprintf("Expires: %s\n", p.Expire))
@@ -44,5 +44,5 @@ func (p *Paste) String() string {
 	b.WriteString(fmt.Sprintf("%s\n\n", rule))
 	b.WriteString(fmt.Sprintf("%s", p.Content))
 
-    return b.String()
+	return b.String()
 }

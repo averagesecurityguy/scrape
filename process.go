@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
-	"os"
 )
 
 // Look for credentials in the format of email:password and save them to a file.
@@ -20,9 +20,9 @@ func processCredentials(contents string) bool {
 	// Save the found creds
 	f, err := os.OpenFile("data/creds.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-        fmt.Println("Could not open creds file.")
+		fmt.Println("Could not open creds file.")
 		return true
-    }
+	}
 
 	for _, cred := range creds {
 		f.WriteString(fmt.Sprintf("%s\n", cred))
@@ -55,9 +55,9 @@ func processCopyPaste(purl, title, contents string) {
 		// Save the found url
 		f, err := os.OpenFile("data/crack_urls.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-	        fmt.Println("Could not open crack urls file.")
+			fmt.Println("Could not open crack urls file.")
 			return
-	    }
+		}
 
 		f.WriteString(fmt.Sprintf("%s|%s|%s\n", purl, title, url))
 
@@ -89,10 +89,10 @@ func process(p Paste) {
 	}
 
 	if strings.Contains(p.Content, "Copy & Paste link") {
-	     processCopyPaste(p.Url, p.Title[:25], p.Content)
-		 save("cp", p.Key, p.String())
-		 return
-    }
+		processCopyPaste(p.Url, p.Title[:25], p.Content)
+		save("cp", p.Key, p.String())
+		return
+	}
 
 	// Save pastes that have any of our keywords. First match wins.
 	for i, _ := range conf.keywords {
