@@ -9,7 +9,7 @@ import (
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents string) bool {
-	re := regexp.MustCompile("^[a-zA-Z0-9-+_.]+@[a-zA-Z0-9.-]+:[^ ]+")
+	re := regexp.MustCompile("^[a-zA-Z0-9-+_.]+@[a-zA-Z0-9.-]+:.*")
 	creds := re.FindAllString(contents, -1)
 
 	// No creds found.
