@@ -85,20 +85,20 @@ func save(prefix string, p *Paste) {
 		fd.WriteString(p.Header())
 		fd.WriteString(p.Content)
 	}
-	
+
 	fmt.Printf("%s | %s | %d | %s |\n", prefix, p.Url, p.Size, p.User)
 }
 
 // Process each paste.
 func process(p *Paste) {
 	if processCredentials(p.Content) {
-		fmt.Printf("[+] Found credentials in: %s\n", p.Url)
+		log.Printf("[+] Found credentials in: %s\n", p.Url)
 		save("creds", p)
 		return
 	}
 
 	if strings.Contains(p.Content, "Copy & Paste link") {
-		fmt.Printf("[+] Found Copy/Paste link in: %s\n", p.Url)
+		log.Printf("[+] Found Copy/Paste link in: %s\n", p.Url)
 		processCopyPaste(p.Url, p.Title[:25], p.Content)
 		save("cp", p)
 		return
@@ -109,7 +109,7 @@ func process(p *Paste) {
 		kwd := conf.keywords[i]
 
 		if strings.Contains(p.Content, kwd.word) {
-			fmt.Printf("[+] Found \"%s\" in: %s\n", kwd.word, p.Url)
+			log.Printf("[+] Found \"%s\" in: %s\n", kwd.word, p.Url)
 
 			save(kwd.prefix, p)
 			break
