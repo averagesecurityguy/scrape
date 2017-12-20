@@ -11,8 +11,8 @@ type Paste struct {
 	Url       string `json:"full_url"`
 	Date      string
 	Key       string
-	Size      int    `json:",string"`
-	Expire    int    `json:",string"`
+	Size      int `json:",string"`
+	Expire    int `json:",string"`
 	Title     string
 	Syntax    string
 	User      string

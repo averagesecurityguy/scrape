@@ -12,7 +12,7 @@ type Keyword struct {
 type Config struct {
 	keys     map[string]time.Time
 	keywords []*Keyword
-	maxSize  int  // Do not save files larger than this.
+	maxSize  int           // Do not save files larger than this.
 	maxTime  time.Duration // Max time to store previously downloaded keys.
 	sleep    time.Duration // Time to wait between each run.
 }

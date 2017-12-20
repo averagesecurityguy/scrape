@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
-	"log"
 )
 
 // Look for credentials in the format of email:password and save them to a file.
@@ -80,7 +80,7 @@ func save(prefix string, p *Paste) {
 
 	// Save pastes that expire and are small enough. Large pastes that expire
 	// will not be saved.
-	if p.Expire != 0 and p.Size < conf.maxSize {
+	if p.Expire != 0 && p.Size < conf.maxSize {
 		fmt.Printf("%s | %s | %d | %s | %s\n", prefix, p.Url, p.Size, p.User, fname)
 		fd.WriteString(p.Header())
 		fd.WriteString(p.Content)
