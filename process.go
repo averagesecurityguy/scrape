@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"log"
 )
 
 // Look for credentials in the format of email:password and save them to a file.
@@ -20,7 +21,7 @@ func processCredentials(contents string) bool {
 	// Save the found creds
 	f, err := os.OpenFile("data/creds.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("[-] Could not open creds file.")
+		log.Println("[-] Could not open creds file.")
 		return true
 	}
 
@@ -55,7 +56,7 @@ func processCopyPaste(purl, title, contents string) {
 		// Save the found url
 		f, err := os.OpenFile("data/crack_urls.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			fmt.Println("[-] Could not open crack urls file.")
+			log.Println("[-] Could not open crack urls file.")
 			return
 		}
 
@@ -71,24 +72,21 @@ func save(prefix string, p *Paste) {
 
 	fd, err := os.Create(fname)
 	if err != nil {
-		fmt.Printf("[-] Could not create file: %s\n", err.Error())
+		log.Printf("[-] Could not create file: %s\n", err.Error())
 		return
 	}
 
 	defer fd.Close()
 
-	// Do not save pastes that do not expire. We can look them up later.
-	if p.Expire == 0 {
+	// Save pastes that expire and are small enough. Large pastes that expire
+	// will not be saved.
+	if p.Expire != 0 and p.Size < conf.maxSize {
+		fmt.Printf("%s | %s | %d | %s | %s\n", prefix, p.Url, p.Size, p.User, fname)
 		fd.WriteString(p.Header())
-	} else {
-		fd.WriteString(p.Header())
-
-		// Do not save large pastes. Don't want to fill up disk.
-		if p.Size < conf.maxSize {
-			fd.WriteString(p.Content)
-		}
+		fd.WriteString(p.Content)
 	}
-	fd.Close()
+	
+	fmt.Printf("%s | %s | %d | %s |\n", prefix, p.Url, p.Size, p.User)
 }
 
 // Process each paste.
