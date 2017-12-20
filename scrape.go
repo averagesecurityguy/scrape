@@ -43,12 +43,13 @@ func get(url string) []byte {
 }
 
 func scrape() {
-	var pastes []Paste
+	var pastes []*Paste
 
 	resp := get("https://pastebin.com/api_scraping.php?limit=250&lang=test")
 	err := json.Unmarshal(resp, &pastes)
 	if err != nil {
 		fmt.Println("Could not parse list of pastes.")
+		fmt.Println(err)
 		return
 	}
 
