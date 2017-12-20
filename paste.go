@@ -11,8 +11,8 @@ type Paste struct {
 	Url       string `json:"full_url"`
 	Date      string
 	Key       string
-	Size      string
-	Expire    string
+	Size      int    `json:",string"`
+	Expire    int    `json:",string"`
 	Title     string
 	Syntax    string
 	User      string
@@ -32,7 +32,7 @@ func (p *Paste) Download() {
 	conf.keys[p.Key] = time.Now()
 }
 
-func (p *Paste) String() string {
+func (p *Paste) Header() string {
 	var b bytes.Buffer
 	rule := "-----------------"
 
@@ -42,7 +42,6 @@ func (p *Paste) String() string {
 	b.WriteString(fmt.Sprintf("Expires: %s\n", p.Expire))
 	b.WriteString(fmt.Sprintf("User: %s\n", p.User))
 	b.WriteString(fmt.Sprintf("%s\n\n", rule))
-	b.WriteString(fmt.Sprintf("%s", p.Content))
 
 	return b.String()
 }
