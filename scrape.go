@@ -23,12 +23,12 @@ func cleanKeys() {
 func get(url string) []byte {
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("[-] Could not access %s\n.", url)
+		fmt.Printf("[-] Could not access %s.\n", url)
 		return []byte("")
 	}
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("[-] Received HTTP error %d\n", resp.StatusCode)
+		fmt.Printf("[-] Received HTTP error %d.\n", resp.StatusCode)
 		return []byte("")
 	}
 
@@ -49,7 +49,7 @@ func scrape() {
 	err := json.Unmarshal(resp, &pastes)
 	if err != nil {
 		fmt.Println("[-] Could not parse list of pastes.")
-		fmt.Printf("[-] %s\n.", err.Error())
+		fmt.Printf("[-] %s.\n", err.Error())
 		return
 	}
 
