@@ -39,7 +39,7 @@ func (p *Paste) Header() string {
 	b.WriteString(fmt.Sprintf("%s\n", rule))
 	b.WriteString(fmt.Sprintf("Link: %s\n", p.Url))
 	b.WriteString(fmt.Sprintf("Posted: %s\n", p.Date))
-	b.WriteString(fmt.Sprintf("Expires: %s\n", p.Expire))
+	b.WriteString(fmt.Sprintf("Expires: %d\n", p.Expire))
 	b.WriteString(fmt.Sprintf("User: %s\n", p.User))
 	b.WriteString(fmt.Sprintf("%s\n\n", rule))
 
