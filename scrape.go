@@ -23,19 +23,19 @@ func cleanKeys() {
 func get(url string) []byte {
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("Could not access %s\n.", url)
+		fmt.Printf("[-] Could not access %s\n.", url)
 		return []byte("")
 	}
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("Received HTTP error %d\n", resp.StatusCode)
+		fmt.Printf("[-] Received HTTP error %d\n", resp.StatusCode)
 		return []byte("")
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Could not read response from %s\n.", url)
+		fmt.Printf("[-] Could not read response from %s.\n", url)
 		return []byte("")
 	}
 
@@ -48,8 +48,8 @@ func scrape() {
 	resp := get("https://pastebin.com/api_scraping.php?limit=250&lang=test")
 	err := json.Unmarshal(resp, &pastes)
 	if err != nil {
-		fmt.Println("Could not parse list of pastes.")
-		fmt.Println(err)
+		fmt.Println("[-] Could not parse list of pastes.")
+		fmt.Printf("[-] %s\n.", err.Error())
 		return
 	}
 

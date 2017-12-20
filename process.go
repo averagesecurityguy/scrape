@@ -20,7 +20,7 @@ func processCredentials(contents string) bool {
 	// Save the found creds
 	f, err := os.OpenFile("data/creds.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("Could not open creds file.")
+		fmt.Println("[-] Could not open creds file.")
 		return true
 	}
 
@@ -55,7 +55,7 @@ func processCopyPaste(purl, title, contents string) {
 		// Save the found url
 		f, err := os.OpenFile("data/crack_urls.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			fmt.Println("Could not open crack urls file.")
+			fmt.Println("[-] Could not open crack urls file.")
 			return
 		}
 
@@ -71,7 +71,7 @@ func save(prefix string, p *Paste) {
 
 	fd, err := os.Create(fname)
 	if err != nil {
-		fmt.Printf("Could not create file: %s\n", err.Error())
+		fmt.Printf("[-] Could not create file: %s\n", err.Error())
 		return
 	}
 
@@ -94,13 +94,13 @@ func save(prefix string, p *Paste) {
 // Process each paste.
 func process(p *Paste) {
 	if processCredentials(p.Content) {
-		fmt.Printf("Found credentials in: %s\n", p.Url)
+		fmt.Printf("[+] Found credentials in: %s\n", p.Url)
 		save("creds", p)
 		return
 	}
 
 	if strings.Contains(p.Content, "Copy & Paste link") {
-		fmt.Printf("Found Copy/Paste link in: %s\n", p.Url)
+		fmt.Printf("[+] Found Copy/Paste link in: %s\n", p.Url)
 		processCopyPaste(p.Url, p.Title[:25], p.Content)
 		save("cp", p)
 		return
@@ -111,7 +111,7 @@ func process(p *Paste) {
 		kwd := conf.keywords[i]
 
 		if strings.Contains(p.Content, kwd.word) {
-			fmt.Printf("Found \"%s\" in: %s\n", kwd.word, p.Url)
+			fmt.Printf("[+] Found \"%s\" in: %s\n", kwd.word, p.Url)
 
 			save(kwd.prefix, p)
 			break
