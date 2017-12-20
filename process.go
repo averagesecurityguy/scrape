@@ -9,7 +9,7 @@ import (
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents string) bool {
-	re := regexp.MustCompile("^[a-zA-Z0-9-+_.]+@[a-zA-Z0-9.-]+:.*")
+	re := regexp.MustCompile("^[a-zA-Z0-9-+_.]+@[a-zA-Z0-9.-]+:[^ ]+")
 	creds := re.FindAllString(contents, -1)
 
 	// No creds found.
@@ -66,8 +66,8 @@ func processCopyPaste(purl, title, contents string) {
 }
 
 // Save a paste to the data folder with the specified prefix.
-func save(prefix, key, data string) {
-	fname := fmt.Sprintf("data/%s-%s.paste", prefix, key)
+func save(prefix string, p *Paste) {
+	fname := fmt.Sprintf("data/%s-%s.paste", prefix, p.Key)
 
 	fd, err := os.Create(fname)
 	if err != nil {
@@ -77,20 +77,32 @@ func save(prefix, key, data string) {
 
 	defer fd.Close()
 
-	fd.WriteString(data)
+	// Do not save pastes that do not expire. We can look them up later.
+	if p.Expire == 0 {
+		fd.WriteString(p.Header())
+	} else {
+		fd.WriteString(p.Header())
+
+		// Do not save large pastes. Don't want to fill up disk.
+		if p.Size < conf.maxSize {
+			fd.WriteString(p.Content)
+		}
+	}
 	fd.Close()
 }
 
 // Process each paste.
-func process(p Paste) {
+func process(p *Paste) {
 	if processCredentials(p.Content) {
-		save("creds", p.Key, p.String())
+		fmt.Printf("Found credentials in: %s\n", p.Url)
+		save("creds", p)
 		return
 	}
 
 	if strings.Contains(p.Content, "Copy & Paste link") {
+		fmt.Printf("Found Copy/Paste link in: %s\n", p.Url)
 		processCopyPaste(p.Url, p.Title[:25], p.Content)
-		save("cp", p.Key, p.String())
+		save("cp", p)
 		return
 	}
 
@@ -99,7 +111,9 @@ func process(p Paste) {
 		kwd := conf.keywords[i]
 
 		if strings.Contains(p.Content, kwd.word) {
-			save(kwd.prefix, p.Key, p.String())
+			fmt.Printf("Found \"%s\" in: %s\n", kwd.word, p.Url)
+
+			save(kwd.prefix, p)
 			break
 		}
 	}
