@@ -10,7 +10,7 @@ import (
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents string) bool {
-	re := regexp.MustCompile("^[a-zA-Z0-9-+_.]+@[a-zA-Z0-9.-]+:.*")
+	re := regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~].*$")
 	creds := re.FindAllString(contents, -1)
 
 	// No creds found.
@@ -60,7 +60,7 @@ func processCopyPaste(purl, title, contents string) {
 			return
 		}
 
-		f.WriteString(fmt.Sprintf("%s|%s|%s\n", purl, title, url))
+		f.WriteString(fmt.Sprintf("%s | %s | %s\n", purl, title, url))
 
 		f.Close()
 	}
@@ -80,7 +80,6 @@ func save(prefix string, p *Paste) {
 			return
 		}
 
-		fmt.Printf(" | %s", fname)
 		fd.WriteString(p.Header())
 		fd.WriteString(p.Content)
 
@@ -93,25 +92,24 @@ func save(prefix string, p *Paste) {
 // Process each paste.
 func process(p *Paste) {
 	if processCredentials(p.Content) {
-		log.Printf("[+] Found credentials in: %s\n", p.Url)
+		log.Printf("[+] Found credentials in: %s", p.Url)
 		save("creds", p)
 		return
 	}
 
 	if strings.Contains(p.Content, "Copy & Paste link") {
-		log.Printf("[+] Found Copy/Paste link in: %s\n", p.Url)
+		log.Printf("[+] Found Copy/Paste link in: %s", p.Url)
 		processCopyPaste(p.Url, p.Title[:25], p.Content)
-		save("cp", p)
 		return
 	}
 
-	// Save pastes that have any of our keywords. First match wins.
+	// Save pastes that match any of our keywords. First match wins.
 	for i, _ := range conf.keywords {
 		kwd := conf.keywords[i]
+		match := kwd.regex.FindString(p.Content)
 
-		if strings.Contains(p.Content, kwd.word) {
-			log.Printf("[+] Found \"%s\" in: %s\n", kwd.word, p.Url)
-
+		if match != "" {
+			log.Printf("[+] Found \"%s\" in: %s", kwd.prefix, p.Url)
 			save(kwd.prefix, p)
 			break
 		}
