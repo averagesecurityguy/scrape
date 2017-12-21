@@ -50,6 +50,7 @@ func scrape() {
 	if err != nil {
 		log.Println("[-] Could not parse list of pastes.")
 		log.Printf("[-] %s.\n", err.Error())
+		log.Println(resp)
 		return
 	}
 
