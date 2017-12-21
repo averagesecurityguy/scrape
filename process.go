@@ -70,23 +70,24 @@ func processCopyPaste(purl, title, contents string) {
 func save(prefix string, p *Paste) {
 	fname := fmt.Sprintf("data/%s-%s.paste", prefix, p.Key)
 
-	fd, err := os.Create(fname)
-	if err != nil {
-		log.Printf("[-] Could not create file: %s\n", err.Error())
-		return
-	}
-
-	defer fd.Close()
-
 	// Save pastes that expire and are small enough. Large pastes that expire
 	// will not be saved.
+	fmt.Printf("%s | %s | %d | %s", prefix, p.Url, p.Size, p.User)
 	if p.Expire != 0 && p.Size < conf.maxSize {
-		fmt.Printf("%s | %s | %d | %s | %s\n", prefix, p.Url, p.Size, p.User, fname)
+		fd, err := os.Create(fname)
+		if err != nil {
+			log.Printf("[-] Could not create file: %s\n", err.Error())
+			return
+		}
+
+		fmt.Printf(" | %s", fname)
 		fd.WriteString(p.Header())
 		fd.WriteString(p.Content)
+
+		fd.Close()
 	}
 
-	fmt.Printf("%s | %s | %d | %s |\n", prefix, p.Url, p.Size, p.User)
+	fmt.Println()
 }
 
 // Process each paste.
