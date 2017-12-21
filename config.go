@@ -1,11 +1,12 @@
 package main
 
 import (
+	"regexp"
 	"time"
 )
 
 type Keyword struct {
-	word   string
+	regex  *regexp.Regexp
 	prefix string
 }
 
@@ -26,10 +27,17 @@ func newConfig() Config {
 	c.sleep = 60 * time.Second
 
 	// Build our includes list.
-	c.keywords = append(c.keywords, &Keyword{"BEGIN PRIVATE KEY", "privkey"})
-	c.keywords = append(c.keywords, &Keyword{"BEGIN RSA PRIVATE KEY", "privkey"})
-	c.keywords = append(c.keywords, &Keyword{"BEGIN DSA PRIVATE KEY", "privkey"})
-	c.keywords = append(c.keywords, &Keyword{"FULLZ", "carders"})
+	c.keywords = loadKeywords()
 
 	return c
+}
+
+func loadKeywords() []*Keyword {
+	return []*Keyword{
+		&Keyword{regexp.MustCompile("(?i)BEGIN PRIVATE KEY"), "privkey"},
+		&Keyword{regexp.MustCompile("(?i)BEGIN DSA PRIVATE KEY"), "privkey"},
+		&Keyword{regexp.MustCompile("(?i)BEGIN RSA PRIVATE KEY"), "privkey"},
+		&Keyword{regexp.MustCompile("(?i)FULLZ"), "carder"},
+		&Keyword{regexp.MustCompile("(?i)aws_secret_access_key"), "awskey"},
+	}
 }
