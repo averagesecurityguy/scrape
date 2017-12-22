@@ -8,30 +8,36 @@ import (
 	"strings"
 )
 
+var cpRegex = regexp.MustCompile("http://.*")
+var credRegex = regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/].*$")
+var keysRegex = regexp.MustCompile("(?m)BEGIN (RSA|DSA|) PRIVATE KEY.?END")
+
 // Look for credentials in the format of email:password and save them to a file.
-func processCredentials(contents string) bool {
-	re := regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/].*$")
-	creds := re.FindAllString(contents, -1)
+func processCredentials(contents, url string) {
+	creds := credRegex.FindAllString(contents, -1)
 
 	// No creds found.
 	if creds == nil {
-		return false
+		return
 	}
 
 	// Save the found creds
-	f, err := os.OpenFile("data/creds.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println("[-] Could not open creds file.")
-		return true
+	log.Printf("[+] Found credentials in: %s", url)
+	save("creds.txt", strings.Join(creds, "\n"))
+}
+
+// Look for private keys.
+func processPrivKey(contents, url string) {
+	keys := keysRegex.FindAllString(contents, -1)
+
+	// No keys found.
+	if keys == nil {
+		return
 	}
 
-	for _, cred := range creds {
-		f.WriteString(fmt.Sprintf("%s\n", cred))
-	}
-
-	f.Close()
-
-	return true
+	// Save the found keys
+	log.Printf("[+] Found private keys in: %s", url)
+	save("privkeys.txt", strings.Join(keys, "\n"))
 }
 
 // Found a lot of files with the format:
@@ -48,63 +54,61 @@ func processCredentials(contents string) bool {
 //
 // Example: https://pastebin.com/GP7Gx41u
 // This method extracts those URLs for later analysis.
-func processCopyPaste(purl, title, contents string) {
-	re := regexp.MustCompile("http://.*")
-	url := re.FindString(contents)
+func processCopyPaste(contents, title, url string) {
+	if !strings.Contains(contents, "Copy & Paste link") {
+		return
+	}
 
-	if url != "" {
-		// Save the found url
-		f, err := os.OpenFile("data/crack_urls.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Println("[-] Could not open crack urls file.")
-			return
-		}
+	log.Printf("[+] Found Copy/Paste link in: %s", url)
 
-		f.WriteString(fmt.Sprintf("%s | %s | %s\n", purl, title, url))
-
-		f.Close()
+	link := cpRegex.FindString(contents)
+	if link != "" {
+		log.Printf("[+] Found crack link in: %s", url)
+		save("crack_urls.txt", fmt.Sprintf("%s | %s | %s\n", url, title, link))
 	}
 }
 
 // Save a paste to the data folder with the specified prefix.
-func save(prefix string, p *Paste) {
-	fname := fmt.Sprintf("data/%s-%s.paste", prefix, p.Key)
+func savePaste(prefix string, p *Paste) {
+	fname := fmt.Sprintf("%s-%s.paste", prefix, p.Key)
 
 	if p.Expire != 0 && p.Size < conf.maxSize {
-		fd, err := os.Create(fname)
-		if err != nil {
-			log.Printf("[-] Could not create file: %s\n", err.Error())
-			return
-		}
-
-		fd.WriteString(p.Header())
-		fd.WriteString(p.Content)
-
-		fd.Close()
+		data := fmt.Sprintf("%s\n\n%s", p.Header(), p.Content)
+		save(fname, data)
 	}
+}
+
+func save(fname, data string) {
+	path := fmt.Sprintf("%s/%s", conf.dataPath, fname)
+
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("[-] Could not open file: %s.", path)
+		return
+	}
+
+	f.WriteString(data + "\n")
+	f.Close()
 }
 
 // Process each paste.
 func process(p *Paste) {
-	if processCredentials(p.Content) {
-		log.Printf("[+] Found credentials in: %s", p.Url)
-		return
-	}
+	// Find and save specific data.
+	processCredentials(p.Content, p.Url)
+	processPrivKey(p.Content, p.Url)
+	processCopyPaste(p.Content, p.Title, p.Url)
 
-	if strings.Contains(p.Content, "Copy & Paste link") {
-		log.Printf("[+] Found Copy/Paste link in: %s", p.Url)
-		processCopyPaste(p.Url, p.Title[:25], p.Content)
-		return
-	}
 
-	// Save pastes that match any of our keywords. First match wins.
+	// Save pastes that match any of our keywords. First match wins. Use these
+	// to find interesting data that will eventually be processed with a more
+	// specific method.
 	for i, _ := range conf.keywords {
 		kwd := conf.keywords[i]
 		match := kwd.regex.FindString(p.Content)
 
 		if match != "" {
 			log.Printf("[+] Found \"%s\" in: %s", kwd.prefix, p.Url)
-			save(kwd.prefix, p)
+			savePaste(kwd.prefix, p)
 			break
 		}
 	}
