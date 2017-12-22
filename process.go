@@ -10,7 +10,7 @@ import (
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents string) bool {
-	re := regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~].*$")
+	re := regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/].*$")
 	creds := re.FindAllString(contents, -1)
 
 	// No creds found.
@@ -70,9 +70,6 @@ func processCopyPaste(purl, title, contents string) {
 func save(prefix string, p *Paste) {
 	fname := fmt.Sprintf("data/%s-%s.paste", prefix, p.Key)
 
-	// Save pastes that expire and are small enough. Large pastes that expire
-	// will not be saved.
-	fmt.Printf("%s | %s | %d | %s", prefix, p.Url, p.Size, p.User)
 	if p.Expire != 0 && p.Size < conf.maxSize {
 		fd, err := os.Create(fname)
 		if err != nil {
@@ -85,15 +82,12 @@ func save(prefix string, p *Paste) {
 
 		fd.Close()
 	}
-
-	fmt.Println()
 }
 
 // Process each paste.
 func process(p *Paste) {
 	if processCredentials(p.Content) {
 		log.Printf("[+] Found credentials in: %s", p.Url)
-		save("creds", p)
 		return
 	}
 
