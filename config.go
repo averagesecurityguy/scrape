@@ -40,7 +40,6 @@ func loadKeywords() []*Keyword {
 		&Keyword{regexp.MustCompile("(?i)BEGIN DSA PRIVATE KEY"), "privkey"},
 		&Keyword{regexp.MustCompile("(?i)BEGIN RSA PRIVATE KEY"), "privkey"},
 		&Keyword{regexp.MustCompile("(?i)FULLZ"), "carder"},
-		&Keyword{regexp.MustCompile("(?i)aws_secret_access_key"), "awskey"},
 		&Keyword{regexp.MustCompile("(?i)`password`"), "sqlpass"},
 	}
 }
