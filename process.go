@@ -10,7 +10,27 @@ import (
 
 var cpRegex = regexp.MustCompile("http://.*")
 var credRegex = regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/].*$")
-var keysRegex = regexp.MustCompile("(?m)BEGIN (RSA|DSA|) PRIVATE KEY.?END")
+var keysRegex = regexp.MustCompile("(?m)BEGIN (RSA|DSA|) PRIVATE KEY.*END")
+var awsRegex = regexp.MustCompile("(?i)aws_access_key_id[ =]+(.*)\naws_secret_access_key[ =]+(.*)")
+
+// Find AWS access keys and secrets
+func processAWSKeys(contents, url string) {
+	keys := awsRegex.FindAllStringSubmatch(contents, -1)
+
+	// No keys found.
+	if keys == nil {
+		return
+	}
+
+	log.Printf("[+] Found AWS keys in: %s", url)
+
+	var formatted []string
+	for _, key := range keys {
+		formatted = append(formatted, strings.Join(key[1:], ":"))
+	}
+
+	save("awskeys.txt", strings.Join(formatted, "\n"))
+}
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents, url string) {
@@ -63,7 +83,6 @@ func processCopyPaste(contents, title, url string) {
 
 	link := cpRegex.FindString(contents)
 	if link != "" {
-		log.Printf("[+] Found crack link in: %s", url)
 		save("crack_urls.txt", fmt.Sprintf("%s | %s | %s\n", url, title, link))
 	}
 }
@@ -97,7 +116,7 @@ func process(p *Paste) {
 	processCredentials(p.Content, p.Url)
 	processPrivKey(p.Content, p.Url)
 	processCopyPaste(p.Content, p.Title, p.Url)
-
+	processAWSKeys(p.Content, p.Url)
 
 	// Save pastes that match any of our keywords. First match wins. Use these
 	// to find interesting data that will eventually be processed with a more
