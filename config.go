@@ -23,7 +23,7 @@ func newConfig() Config {
 	var c Config
 
 	c.keys = make(map[string]time.Time)
-	c.maxSize = 1024 * 1024
+	c.maxSize = 100 * 1024 * 1024
 	c.maxTime = 3600 * time.Second
 	c.sleep = 60 * time.Second
 	c.dataPath = "data"
@@ -41,5 +41,7 @@ func loadKeywords() []*Keyword {
 		&Keyword{regexp.MustCompile("(?i)BEGIN RSA PRIVATE KEY"), "privkey"},
 		&Keyword{regexp.MustCompile("(?i)FULLZ"), "carder"},
 		&Keyword{regexp.MustCompile("(?i)`password`"), "sqlpass"},
+		&Keyword{regexp.MustCompile("(?i)proof of concept"), "exploit"},
+		&Keyword{regexp.MustCompile("(?i)remote code execution"), "exploit"},
 	}
 }
