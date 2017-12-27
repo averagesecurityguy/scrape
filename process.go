@@ -8,21 +8,21 @@ import (
 	"strings"
 )
 
-var cpRegex = regexp.MustCompile("http://.*")
-var credRegex = regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/].*$")
-var keysRegex = regexp.MustCompile("(?m)BEGIN (RSA|DSA|) PRIVATE KEY.*END")
-var awsRegex = regexp.MustCompile("(?i)aws_access_key_id[ =]+(.*)\naws_secret_access_key[ =]+(.*)")
+var reLink = regexp.MustCompile("http://.*")
+var reCreds = regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/$].*$")
+var reEmail = regexp.MustCompile("[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+")
+var rePrivKey = regexp.MustCompile("(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY")
+var reAwsKey = regexp.MustCompile("(?is).*(AKIA[A-Z0-9]{16}).*([A-Za-z0-9+/]{40})")
+
 
 // Find AWS access keys and secrets
 func processAWSKeys(contents, url string) {
-	keys := awsRegex.FindAllStringSubmatch(contents, -1)
+	keys := reAwsKey.FindAllStringSubmatch(contents, -1)
 
 	// No keys found.
 	if keys == nil {
 		return
 	}
-
-	log.Printf("[+] Found AWS keys in: %s", url)
 
 	var formatted []string
 	for _, key := range keys {
@@ -34,21 +34,25 @@ func processAWSKeys(contents, url string) {
 
 // Look for email addresses and save them to a file.
 func processEmails(contents, url string) {
-	emails := emailRegex.FindAllString(contents, -1)
+	emails := reEmail.FindAllString(contents, -1)
 
 	// No emails found.
 	if emails == nil {
 		return
 	}
 
+	// Lowercase the emails to facilitate sorting and uniquing.
+	for i, _ := range emails {
+		emails[i] = strings.ToLower(emails[i])
+	}
+
 	// Save the found emails
-	log.Printf("[+] Found emails in: %s", url)
 	save("emails.txt", strings.Join(emails, "\n"))
 }
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents, url string) {
-	creds := credRegex.FindAllString(contents, -1)
+	creds := reCreds.FindAllString(contents, -1)
 
 	// No creds found.
 	if creds == nil {
@@ -56,13 +60,12 @@ func processCredentials(contents, url string) {
 	}
 
 	// Save the found creds
-	log.Printf("[+] Found credentials in: %s", url)
 	save("creds.txt", strings.Join(creds, "\n"))
 }
 
 // Look for private keys.
 func processPrivKey(contents, url string) {
-	keys := keysRegex.FindAllString(contents, -1)
+	keys := rePrivKey.FindAllString(contents, -1)
 
 	// No keys found.
 	if keys == nil {
@@ -93,11 +96,9 @@ func processCopyPaste(contents, title, url string) {
 		return
 	}
 
-	log.Printf("[+] Found Copy/Paste link in: %s", url)
-
-	link := cpRegex.FindString(contents)
+	link := reLink.FindString(contents)
 	if link != "" {
-		save("crack_urls.txt", fmt.Sprintf("%s | %s | %s\n", url, title, link))
+		save("crack_urls.txt", fmt.Sprintf("%s", link))
 	}
 }
 
