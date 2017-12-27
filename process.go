@@ -32,6 +32,20 @@ func processAWSKeys(contents, url string) {
 	save("awskeys.txt", strings.Join(formatted, "\n"))
 }
 
+// Look for email addresses and save them to a file.
+func processEmails(contents, url string) {
+	emails := emailRegex.FindAllString(contents, -1)
+
+	// No emails found.
+	if emails == nil {
+		return
+	}
+
+	// Save the found emails
+	log.Printf("[+] Found emails in: %s", url)
+	save("emails.txt", strings.Join(emails, "\n"))
+}
+
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents, url string) {
 	creds := credRegex.FindAllString(contents, -1)
@@ -113,6 +127,7 @@ func save(fname, data string) {
 // Process each paste.
 func process(p *Paste) {
 	// Find and save specific data.
+	processEmails(p.Content, p.Url)
 	processCredentials(p.Content, p.Url)
 	processPrivKey(p.Content, p.Url)
 	processCopyPaste(p.Content, p.Title, p.Url)
