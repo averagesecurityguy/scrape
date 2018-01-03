@@ -43,5 +43,9 @@ func loadKeywords() []*Keyword {
 		&Keyword{regexp.MustCompile("(?i)`password`"), "sqlpass"},
 		&Keyword{regexp.MustCompile("(?i)proof of concept"), "exploit"},
 		&Keyword{regexp.MustCompile("(?i)remote code execution"), "exploit"},
+		&Keyword{regexp.MustCompile("AKIA[A-Z0-9]{16}"), "awskey"},
+		&Keyword{regexp.MustCompile("\\$[0-9]\\$[a-zA-Z0-9]\\$[a-zA-Z0-9./=]+"), "pwhash"},
+		&Keyword{regexp.MustCompile("[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+"), "pwhash"},
+		&Keyword{regexp.MustCompile("[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}"), "pwhash"},
 	}
 }

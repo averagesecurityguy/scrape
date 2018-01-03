@@ -9,7 +9,7 @@ import (
 )
 
 var reLink = regexp.MustCompile("http://.*")
-var reCreds = regexp.MustCompile("(?m)^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+:[^ ~/$].*$")
+var reCreds = regexp.MustCompile("(?m)^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+):([^ ~/$].*$)")
 var reEmail = regexp.MustCompile("[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+")
 var rePrivKey = regexp.MustCompile("(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY")
 var reAwsKey = regexp.MustCompile("(?is).*(AKIA[A-Z0-9]{16}).*([A-Za-z0-9+/]{40})")
@@ -52,15 +52,19 @@ func processEmails(contents, url string) {
 
 // Look for credentials in the format of email:password and save them to a file.
 func processCredentials(contents, url string) {
-	creds := reCreds.FindAllString(contents, -1)
+	creds := reCreds.FindAllStringSubmatch(contents, -1)
 
 	// No creds found.
 	if creds == nil {
 		return
 	}
 
+	var formatted []string
+	for _, cred := range creds {
+		formatted = append(formatted, fmt.Sprintf("%s:%s", strings.ToLower(cred[1]), cred[2]))
+	}
 	// Save the found creds
-	save("creds.txt", strings.Join(creds, "\n"))
+	save("creds.txt", strings.Join(formatted, "\n"))
 }
 
 // Look for private keys.
