@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"regexp"
 	"time"
 )
@@ -13,7 +14,7 @@ type Keyword struct {
 type Config struct {
 	keys     map[string]time.Time
 	keywords []*Keyword
-	dbPath   string
+	ds       *KVStore
 	maxSize  int           // Do not save files larger than this.
 	maxTime  time.Duration // Max time to store previously downloaded keys.
 	sleep    time.Duration // Time to wait between each run.
@@ -26,10 +27,17 @@ func newConfig() Config {
 	c.maxSize = 100 * 1024 * 1024
 	c.maxTime = 3600 * time.Second
 	c.sleep = 60 * time.Second
-	c.dbPath = "data/scrape.db"
 
 	// Build our includes list.
 	c.keywords = loadKeywords()
+
+	// Create our connection to the key value store.
+	ds, err := NewKVStore("data/scrape.db")
+	if err != nil {
+		log.Fatalf("[-] Cannot open database: %s\n", err)
+	}
+
+	c.ds = ds
 
 	return c
 }
