@@ -45,6 +45,8 @@ func get(url string) []byte {
 func scrape() {
 	var pastes []*Paste
 
+	log.Println("[+] Checking for new pastes.")
+
 	resp := get("https://pastebin.com/api_scraping.php?limit=100")
 	err := json.Unmarshal(resp, &pastes)
 	if err != nil {
@@ -57,7 +59,7 @@ func scrape() {
 	for i, _ := range pastes {
 		p := pastes[i]
 		p.Download()
-		process(p)
+		p.Process()
 	}
 }
 
