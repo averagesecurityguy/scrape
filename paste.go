@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -23,25 +23,34 @@ type Paste struct {
 func (p *Paste) Download() {
 	_, exists := conf.keys[p.Key]
 	if exists {
-		// fmt.Println("Already fetched this paste.")
 		return
 	}
+
+	log.Printf("[+] Downloading paste: %s\n", p.Key)
 
 	resp := get(p.ScrapeUrl)
 	p.Content = string(resp)
 	conf.keys[p.Key] = time.Now()
 }
 
-func (p *Paste) Header() string {
-	var b bytes.Buffer
-	rule := "-----------------"
+func (p *Paste) Process() {
+	// Find and save specific data.
+	if processEmails(p.Content, p.Key) || processCredentials(p.Content, p.Key) ||
+		processPrivKey(p.Content, p.Key) || processAWSKeys(p.Content, p.Key) {
+		conf.ds.Put("rawpastes", p.Key, p)
+	}
 
-	b.WriteString(fmt.Sprintf("%s\n", rule))
-	b.WriteString(fmt.Sprintf("Link: %s\n", p.Url))
-	b.WriteString(fmt.Sprintf("Posted: %s\n", p.Date))
-	b.WriteString(fmt.Sprintf("Expires: %d\n", p.Expire))
-	b.WriteString(fmt.Sprintf("User: %s\n", p.User))
-	b.WriteString(fmt.Sprintf("%s\n\n", rule))
+	// Save pastes that match any of our keywords. First match wins. Use these
+	// to find interesting data that will eventually be processed with a more
+	// specific method.
+	for i, _ := range conf.keywords {
+		kwd := conf.keywords[i]
+		key := fmt.Sprintf("%s-%s", kwd.prefix, p.Key)
+		match := kwd.regex.FindString(p.Content)
 
-	return b.String()
+		if match != "" {
+			conf.ds.Put("keywords", key, p)
+			break
+		}
+	}
 }
