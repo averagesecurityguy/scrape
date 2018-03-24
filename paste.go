@@ -35,7 +35,7 @@ func (p *Paste) Download() {
 
 func (p *Paste) Process() {
 	// Find and save specific data.
-	if processEmails(p.Content, p.Key) || processCredentials(p.Content, p.Key) ||
+	if processCredentials(p.Content, p.Key) || processEmails(p.Content, p.Key) ||
 		processPrivKey(p.Content, p.Key) || processAWSKeys(p.Content, p.Key) {
 		conf.ds.Write("pastes", p.Key, []byte(p.Content))
 	}
