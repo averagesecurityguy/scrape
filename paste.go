@@ -37,20 +37,25 @@ func (p *Paste) Process() {
 	// Find and save specific data.
 	if processEmails(p.Content, p.Key) || processCredentials(p.Content, p.Key) ||
 		processPrivKey(p.Content, p.Key) || processAWSKeys(p.Content, p.Key) {
-		conf.ds.Put("rawpastes", p.Key, p)
+		conf.ds.Write("pastes", p.Key, []byte(p.Content))
 	}
 
 	// Save pastes that match any of our keywords. First match wins. Use these
 	// to find interesting data that will eventually be processed with a more
 	// specific method.
+	save := false
 	for i, _ := range conf.keywords {
 		kwd := conf.keywords[i]
 		key := fmt.Sprintf("%s-%s", kwd.prefix, p.Key)
 		match := kwd.regex.FindString(p.Content)
 
 		if match != "" {
-			conf.ds.Put("keywords", key, p)
-			break
+			save = true
+			conf.ds.Write("keywords", key, nil)
 		}
+	}
+
+	if save {
+		conf.ds.Write("pastes", p.Key, []byte(p.Content))
 	}
 }

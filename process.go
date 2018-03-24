@@ -20,7 +20,7 @@ func processAWSKeys(contents, key string) bool {
 	}
 
 	for _, awsKey := range awsKeys {
-		conf.ds.Put("awskeys", strings.Join(awsKey[1:], ":"), key)
+		conf.ds.Write("awskeys", strings.Join(awsKey[1:], ":"), []byte(key))
 	}
 
 	return true
@@ -36,7 +36,7 @@ func processEmails(contents, key string) bool {
 	}
 
 	for _, email := range emails {
-		conf.ds.Put("emails", strings.ToLower(email), key)
+		conf.ds.Write("emails", strings.ToLower(email), []byte(key))
 	}
 
 	return true
@@ -52,7 +52,7 @@ func processCredentials(contents, key string) bool {
 	}
 
 	for _, cred := range creds {
-		conf.ds.Put("creds", cred, key)
+		conf.ds.Write("creds", cred, []byte(key))
 	}
 
 	return true
@@ -68,7 +68,7 @@ func processPrivKey(contents, key string) bool {
 	}
 
 	for _, privKey := range privKeys {
-		conf.ds.Put("privkeys", privKey, key)
+		conf.ds.Write("privkeys", privKey, []byte(key))
 	}
 
 	return true
