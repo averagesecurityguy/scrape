@@ -35,9 +35,16 @@ func (p *Paste) Download() {
 
 func (p *Paste) Process() {
 	// Find and save specific data.
-	if processCredentials(p.Content, p.Key) || processEmails(p.Content, p.Key) ||
-		processPrivKey(p.Content, p.Key) || processAWSKeys(p.Content, p.Key) {
+	switch {
+	case processCredentials(p.Content, p.Key):
 		conf.ds.Write("pastes", p.Key, []byte(p.Content))
+	case processEmails(p.Content, p.Key):
+		conf.ds.Write("pastes", p.Key, []byte(p.Content))
+	case processPrivKey(p.Content, p.Key):
+		conf.ds.Write("pastes", p.Key, []byte(p.Content))
+	case processAWSKeys(p.Content, p.Key):
+		conf.ds.Write("pastes", p.Key, []byte(p.Content))
+	default:
 	}
 
 	// Save pastes that match any of our keywords. First match wins. Use these
