@@ -15,7 +15,7 @@ func getStoreConn() *store.Store {
 
 	for tries := 1; tries < 20; tries += 2 {
 		// Create our connection to the key value store.
-		ds, err = store.NewStore(conf.dbFile)
+		ds, err = store.NewStore(conf.DbFile)
 		if err != nil {
 			log.Printf("[-] Cannot open database: %s\n", err)
 			time.Sleep(1 << uint(tries) * time.Millisecond)
@@ -25,7 +25,6 @@ func getStoreConn() *store.Store {
 	}
 
 	return ds
-
 }
 
 func initStore(s *store.Store) {
@@ -34,14 +33,16 @@ func initStore(s *store.Store) {
 	s.CreateBucket("creds")
 	s.CreateBucket("privkeys")
 	s.CreateBucket("keywords")
+	s.CreateBucket("regexes")
 	s.CreateBucket("pastes")
 }
 
 func cleanKeys() {
 	now := time.Now()
+	max := time.Duration(conf.MaxTime) * time.Second
 
 	for key, _ := range conf.keys {
-		if now.Sub(conf.keys[key]) > conf.maxTime {
+		if now.Sub(conf.keys[key]) > max {
 			delete(conf.keys, key)
 		}
 	}
@@ -64,7 +65,7 @@ func main() {
 		conf.ds = getStoreConn()
 		scrape()
 		conf.ds.Close()
-		time.Sleep(conf.sleep)
+		time.Sleep(time.Duration(conf.Sleep) * time.Second)
 		cleanKeys()
 	}
 }

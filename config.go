@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"regexp"
 	"time"
 
@@ -8,47 +11,48 @@ import (
 )
 
 type Keyword struct {
-	regex  *regexp.Regexp
-	prefix string
+	Keyword string
+	Prefix  string
+}
+
+type Regex struct {
+	Regex    string
+	compiled *regexp.Regexp
+	Prefix   string
 }
 
 type Config struct {
 	keys     map[string]time.Time
-	keywords []*Keyword
 	ds       *store.Store
-	dbFile   string
-	maxSize  int           // Do not save files larger than this.
-	maxTime  time.Duration // Max time to store previously downloaded keys.
-	sleep    time.Duration // Time to wait between each run.
-	ghToken  string        // Github API token
+	Keywords []*Keyword                          // A list of keywords to search for in the data.
+	Regexes  []*Regex                            // A list of regular expressions to test against data.
+	DbFile   string      `json:"database_file"`  // File to use for the Store database.
+	MaxSize  int         `json:"max_size"`       // Do not save files larger than this many bytes.
+	MaxTime  int         `json:"max_time"`       // Max time, in seconds, to store previously downloaded keys.
+	Sleep    int                                 // Time, in seconds, to wait between each run.
+	GhToken  string      `json:"github_token"`   // Github API token
 }
 
 func newConfig() Config {
 	var c Config
 
+	data, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal("[-] Could not read config file.")
+	}
+
+	err = json.Unmarshal(data, &c)
+	if err != nil {
+		log.Fatal("[-] Could not parse config file.")
+	}
+
 	c.keys = make(map[string]time.Time)
-	c.maxSize = 100 * 1024 * 1024
-	c.maxTime = 3600 * time.Second
-	c.sleep = 60 * time.Second
 
-	// Build our keyword list.
-	c.keywords = loadKeywords()
-	c.dbFile = "data/scrape.db"
-
-	// Add Tokens
-	c.ghToken = "github_api_token"
+	// Compile our regular expressions
+	for i, _ := range c.Regexes {
+		r := c.Regexes[i]
+		r.compiled = regexp.MustCompile(r.Regex)
+	}
 
 	return c
-}
-
-func loadKeywords() []*Keyword {
-	return []*Keyword{
-		&Keyword{regexp.MustCompile("(?i)FULLZ"), "carder"},
-		&Keyword{regexp.MustCompile("(?i)`password`"), "sqlpass"},
-		&Keyword{regexp.MustCompile("(?i)proof of concept"), "exploit"},
-		&Keyword{regexp.MustCompile("(?i)remote code execution"), "exploit"},
-		&Keyword{regexp.MustCompile("\\$[0-9]\\$[a-zA-Z0-9]\\$[a-zA-Z0-9./=]+"), "pwhash"},
-		&Keyword{regexp.MustCompile("[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+"), "pwhash"},
-		&Keyword{regexp.MustCompile("[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}"), "pwhash"},
-	}
 }

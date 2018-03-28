@@ -89,16 +89,33 @@ func processContent(key, content string) {
 	default:
 	}
 
-	// Save pastes that match any of our keywords. First match wins. Use these
-	// to find interesting data that will eventually be processed with a more
-	// specific method.
+	// Save pastes that match any of our regular expressions. Use these to find
+	// interesting data that will eventually be processed with a more specific
+	// method.
 	save := false
-	for i, _ := range conf.keywords {
-		kwd := conf.keywords[i]
-		kwdKey := fmt.Sprintf("%s-%s", kwd.prefix, key)
-		match := kwd.regex.FindString(content)
+	for i, _ := range conf.Regexes {
+		r := conf.Regexes[i]
+		rKey := fmt.Sprintf("%s-%s", r.Prefix, key)
+		match := r.compiled.FindString(content)
 
 		if match != "" {
+			save = true
+			conf.ds.Write("regexes", rKey, nil)
+		}
+	}
+
+	if save {
+		conf.ds.Write("pastes", key, []byte(content))
+	}
+
+	// Save pastes that match any of our keywords. Use these to find interesting
+	// data that will eventually be processed with a more specific method.
+	save = false
+	for i, _ := range conf.Keywords {
+		kwd := conf.Keywords[i]
+		kwdKey := fmt.Sprintf("%s-%s", kwd.Prefix, key)
+
+		if strings.Contains(content, kwd.Keyword) {
 			save = true
 			conf.ds.Write("keywords", kwdKey, nil)
 		}

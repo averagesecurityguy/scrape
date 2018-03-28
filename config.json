@@ -1,0 +1,19 @@
+{
+    "max_size": 104857600,
+    "max_time": 3600,
+    "sleep": 60,
+    "database_file": "data/scrape.db",
+    "github_token": "github_api_token",
+    "regexes": [
+        {"regex": "(?i)`password`", "prefix": "sqlpass"},
+        {"regex": "(?i)proof of concept", "prefix": "exploit"},
+        {"regex": "(?i)remote code execution", "prefix": "exploit"},
+        {"regex": "\\$[0-9]\\$[a-zA-Z0-9]\\$[a-zA-Z0-9./=]+", "prefix": "pwhash"},
+        {"regex": "[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+", "prefix": "pwhash"},
+        {"regex": "[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}", "prefix": "pwhash"},
+        {"regex": "(?i)FULLZ", "prefix": "carder"}
+    ],
+    "keywords": [
+        {"keyword": "averagesecurityguy", "prefix": "self"}
+    ]
+}

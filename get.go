@@ -19,7 +19,7 @@ func getGithub(url string) []byte {
         return []byte("")
     }
 
-    req.Header.Set("Authorization", "token " + conf.ghToken)
+    req.Header.Set("Authorization", "token " + conf.GhToken)
     resp, err := client.Do(req)
     return processHTTP(resp, err)
 }
