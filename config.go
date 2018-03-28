@@ -20,6 +20,7 @@ type Config struct {
 	maxSize  int           // Do not save files larger than this.
 	maxTime  time.Duration // Max time to store previously downloaded keys.
 	sleep    time.Duration // Time to wait between each run.
+	ghToken  string        // Github API token
 }
 
 func newConfig() Config {
@@ -33,6 +34,9 @@ func newConfig() Config {
 	// Build our keyword list.
 	c.keywords = loadKeywords()
 	c.dbFile = "data/scrape.db"
+
+	// Add Tokens
+	c.ghToken = "github_api_token"
 
 	return c
 }

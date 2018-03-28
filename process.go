@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -72,4 +73,38 @@ func processPrivKey(contents, key string) bool {
 	}
 
 	return true
+}
+
+func processContent(key, content string) {
+	// Find and save specific data.
+	switch {
+	case processCredentials(content, key):
+		conf.ds.Write("pastes", key, []byte(content))
+	case processEmails(content, key):
+		conf.ds.Write("pastes", key, []byte(content))
+	case processPrivKey(content, key):
+		conf.ds.Write("pastes", key, []byte(content))
+	case processAWSKeys(content, key):
+		conf.ds.Write("pastes", key, []byte(content))
+	default:
+	}
+
+	// Save pastes that match any of our keywords. First match wins. Use these
+	// to find interesting data that will eventually be processed with a more
+	// specific method.
+	save := false
+	for i, _ := range conf.keywords {
+		kwd := conf.keywords[i]
+		kwdKey := fmt.Sprintf("%s-%s", kwd.prefix, key)
+		match := kwd.regex.FindString(content)
+
+		if match != "" {
+			save = true
+			conf.ds.Write("keywords", kwdKey, nil)
+		}
+	}
+
+	if save {
+		conf.ds.Write("pastes", key, []byte(content))
+	}
 }

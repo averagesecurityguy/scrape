@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
+	"encoding/json"
 )
 
 type Paste struct {
@@ -34,35 +34,26 @@ func (p *Paste) Download() {
 }
 
 func (p *Paste) Process() {
-	// Find and save specific data.
-	switch {
-	case processCredentials(p.Content, p.Key):
-		conf.ds.Write("pastes", p.Key, []byte(p.Content))
-	case processEmails(p.Content, p.Key):
-		conf.ds.Write("pastes", p.Key, []byte(p.Content))
-	case processPrivKey(p.Content, p.Key):
-		conf.ds.Write("pastes", p.Key, []byte(p.Content))
-	case processAWSKeys(p.Content, p.Key):
-		conf.ds.Write("pastes", p.Key, []byte(p.Content))
-	default:
+	processContent(p.Key, p.Content)
+}
+
+func scrapePastes() {
+	var pastes []*Paste
+
+	log.Println("[+] Checking for new pastes.")
+
+	resp := get("https://pastebin.com/api_scraping.php?limit=100")
+	err := json.Unmarshal(resp, &pastes)
+	if err != nil {
+		log.Println("[-] Could not parse list of pastes.")
+		log.Printf("[-] %s.\n", err.Error())
+		log.Println(string(resp))
+		return
 	}
 
-	// Save pastes that match any of our keywords. First match wins. Use these
-	// to find interesting data that will eventually be processed with a more
-	// specific method.
-	save := false
-	for i, _ := range conf.keywords {
-		kwd := conf.keywords[i]
-		key := fmt.Sprintf("%s-%s", kwd.prefix, p.Key)
-		match := kwd.regex.FindString(p.Content)
-
-		if match != "" {
-			save = true
-			conf.ds.Write("keywords", key, nil)
-		}
-	}
-
-	if save {
-		conf.ds.Write("pastes", p.Key, []byte(p.Content))
+	for i, _ := range pastes {
+		p := pastes[i]
+		p.Download()
+		p.Process()
 	}
 }
