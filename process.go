@@ -37,7 +37,13 @@ func processEmails(contents, key string) bool {
 	}
 
 	for _, email := range emails {
-		conf.ds.Write("emails", strings.ToLower(email), []byte(key))
+		email = cleanEmail(email)
+
+		if email == "" {
+			continue
+		}
+
+		conf.ds.Write("emails", email, []byte(key))
 	}
 
 	return true
@@ -123,5 +129,19 @@ func processContent(key, content string) {
 
 	if save {
 		conf.ds.Write("pastes", key, []byte(content))
+	}
+}
+
+// Remove common false positives in email addresses.
+func cleanEmail(email string) string {
+	email = strings.ToLower(email)
+
+	switch {
+	case strings.HasSuffix(email, "2x.png"):
+		return ""
+	case strings.HasSuffix(email, ".so"):
+		return ""
+	default:
+		return email
 	}
 }
