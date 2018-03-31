@@ -121,7 +121,7 @@ func processContent(key, content string) {
 		kwd := conf.Keywords[i]
 		kwdKey := fmt.Sprintf("%s-%s", kwd.Prefix, key)
 
-		if strings.Contains(content, kwd.Keyword) {
+		if strings.Contains(strings.ToLower(content), kwd.Keyword) {
 			save = true
 			conf.ds.Write("keywords", kwdKey, nil)
 		}
