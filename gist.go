@@ -28,6 +28,8 @@ func (g *Gist) Download() {
 		return
 	}
 
+	log.Printf("[+] Downloading gist: %s\n", g.Key)
+
 	var gist map[string]*json.RawMessage
 	data := getGithub(g.Url)
 
