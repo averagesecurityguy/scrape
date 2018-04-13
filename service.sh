@@ -14,6 +14,8 @@ SCRIPT=${INSTALL_DIR}/scrape
 PIDFILE=${INSTALL_DIR}/var/scrape.pid
 LOGFILE=${INSTALL_DIR}/log/scrape.log
 
+cd "$INSTALL_DIR"
+
 start() {
   if [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE"); then
     echo 'Service already running' >&2
