@@ -3,6 +3,7 @@
 
 INSTALL_DIR=/opt/scrape
 USER=scrape
+GO_BIN=go
 
 # Create service user account
 echo "Adding $USER account."
@@ -15,8 +16,8 @@ echo "User account $USER created with password $pass."
 sudo apt install golang
 
 # Build our binary
-GOPATH=/tmp/go go get github.com/asggo/store
-GOPATH=/tmp/go go build
+GOPATH=/tmp/go "$GO_BIN" get github.com/asggo/store
+GOPATH=/tmp/go "$GO_BIN" build
 
 # Install
 mkdir ${INSTALL_DIR}
