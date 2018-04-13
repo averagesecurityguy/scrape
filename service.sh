@@ -8,7 +8,7 @@
 # Description:       <DESCRIPTION>
 ### END INIT INFO
 INSTALL_DIR=/opt/scrape
-RUNAS=nobody
+RUNAS=scrape
 
 SCRIPT=${INSTALL_DIR}/scrape
 PIDFILE=${INSTALL_DIR}/var/scrape.pid

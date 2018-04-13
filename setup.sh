@@ -4,11 +4,19 @@
 INSTALL_DIR=/opt/scrape
 USER=scrape
 
+# Create service user account
+echo "Adding $USER account."
+pass=$(head -c 12 /dev/urandom | base64)
+useradd -s /bin/bash $USER
+echo $USER:$pass | chpasswd
+echo "User account $USER created with password $pass."
+
 # Install Dependencies
 sudo apt install golang
 
 # Build our binary
-go build
+GOPATH=/tmp/go go get github.com/asggo/store
+GOPATH=/tmp/go go build
 
 # Install
 mkdir ${INSTALL_DIR}
@@ -17,6 +25,7 @@ mkdir ${INSTALL_DIR}/var
 mkdir ${INSTALL_DIR}/log
 
 cp scrape ${INSTALL_DIR}
+cp config.json ${INSTALL_DIR}
 chown -R ${USER}:${USER} ${INSTALL_DIR}
 
 # Configure Service
