@@ -6,13 +6,19 @@ import (
 	"strings"
 )
 
-var reCreds = regexp.MustCompile("(?m)^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+):([^ ~/$].*$)")
+var reCreds = regexp.MustCompile("(?m)^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+):([^ ~/$| ].*$)")
 var reEmail = regexp.MustCompile("[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+")
 var rePrivKey = regexp.MustCompile("(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY")
-var reAwsKey = regexp.MustCompile("(?is).*(AKIA[A-Z0-9]{16}).*([A-Za-z0-9+/]{40})")
+var reAwsKey = regexp.MustCompile("(?is).*(AKIA[A-Z0-9]{16})[\"',:]+([A-Za-z0-9+/]{40})")
+var reBase64 = regexp.MustCompile("^([a-zA-Z0-9+/]+)$")
 
 // Find AWS access keys and secrets
 func processAWSKeys(contents, key string) bool {
+	// Base64 content yields false positives. Skip documents that are only Base64
+	if b64 := reBase64.FindString(contents); b64 != "" {
+		return false
+	}
+
 	awsKeys := reAwsKey.FindAllStringSubmatch(contents, -1)
 
 	// No keys found.
