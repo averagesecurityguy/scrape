@@ -4,6 +4,15 @@
     "sleep": 60,
     "database_file": "data/scrape.db",
     "github_token": "github_api_token",
+	"buckets": [
+		"awskeys",
+		"emails",
+		"creds",
+		"privkeys",
+		"keywords",
+		"regexes",
+		"pastes"
+	],
     "regexes": [
         {"regex": "\\$[0-9]\\$[a-zA-Z0-9]\\$[a-zA-Z0-9./=]+", "prefix": "pwhash"},
         {"regex": "[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+", "prefix": "pwhash"},

@@ -28,13 +28,9 @@ func getStoreConn() *store.Store {
 }
 
 func initStore(s *store.Store) {
-	s.CreateBucket("awskeys")
-	s.CreateBucket("emails")
-	s.CreateBucket("creds")
-	s.CreateBucket("privkeys")
-	s.CreateBucket("keywords")
-	s.CreateBucket("regexes")
-	s.CreateBucket("pastes")
+	for _, bucket := range conf.Buckets {
+		s.CreateBucket(bucket)
+	}
 }
 
 func cleanKeys() {
