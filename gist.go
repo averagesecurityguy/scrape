@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"time"
-	"encoding/json"
 )
 
 type GistFile struct {
@@ -15,11 +15,11 @@ type GistFile struct {
 }
 
 type Gist struct {
-	Url      string
-	Date     string `json:"updated_at"`
-	Key      string `json:"id"`
-	User     string
-	files    []*GistFile
+	Url   string
+	Date  string `json:"updated_at"`
+	Key   string `json:"id"`
+	User  string
+	files []*GistFile
 }
 
 func (g *Gist) Download() {
@@ -46,7 +46,7 @@ func (g *Gist) Download() {
 		log.Printf("[-] Could not parse gist file: %s\n", err.Error())
 	}
 
-	for k := range(files) {
+	for k := range files {
 		g.files = append(g.files, files[k])
 	}
 

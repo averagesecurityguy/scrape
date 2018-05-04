@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"time"
-	"encoding/json"
 )
 
 type Paste struct {

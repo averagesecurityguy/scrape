@@ -1,27 +1,27 @@
 package main
 
 import (
-    "io/ioutil"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 func get(url string) []byte {
-    return processHTTP(http.Get(url))
+	return processHTTP(http.Get(url))
 }
 
 func getGithub(url string) []byte {
-    client := &http.Client{}
+	client := &http.Client{}
 
-    req, err := http.NewRequest("GET", url, nil)
-    if err != nil {
-        log.Printf("[-] Could not create HTTP request: %s\n", err.Error())
-        return []byte("")
-    }
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Printf("[-] Could not create HTTP request: %s\n", err.Error())
+		return []byte("")
+	}
 
-    req.Header.Set("Authorization", "token " + conf.GhToken)
-    resp, err := client.Do(req)
-    return processHTTP(resp, err)
+	req.Header.Set("Authorization", "token "+conf.GhToken)
+	resp, err := client.Do(req)
+	return processHTTP(resp, err)
 }
 
 func processHTTP(resp *http.Response, err error) []byte {
