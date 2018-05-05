@@ -59,9 +59,7 @@ func main() {
 	ds.Close()
 
 	for {
-		conf.ds = getStoreConn()
 		scrape()
-		conf.ds.Close()
 		time.Sleep(time.Duration(conf.Sleep) * time.Second)
 		cleanKeys()
 	}

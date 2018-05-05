@@ -88,6 +88,9 @@ func processPrivKey(contents, key string) bool {
 }
 
 func processContent(key, content string) {
+	conf.ds = getStoreConn()
+	defer conf.ds.Close()
+
 	// Find and save specific data.
 	switch {
 	case processCredentials(content, key):
