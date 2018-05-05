@@ -42,7 +42,7 @@ func scrapePastes() {
 
 	log.Println("[+] Checking for new pastes.")
 
-	resp := get("https://pastebin.com/api_scraping.php?limit=100")
+	resp := get("https://scrape.pastebin.com/api_scraping.php?limit=100")
 	err := json.Unmarshal(resp, &pastes)
 	if err != nil {
 		log.Println("[-] Could not parse list of pastes.")
