@@ -65,6 +65,10 @@ func processCredentials(contents, key string) bool {
 	}
 
 	for _, cred := range creds {
+		if cred == "" {
+			continue
+		}
+
 		conf.ds.Write("creds", cred, []byte(key))
 	}
 
@@ -87,6 +91,18 @@ func processPrivKey(contents, key string) bool {
 	return true
 }
 
+func savePaste(key, value string) {
+	if conf.Save == false {
+		return
+	}
+
+	if len(value) > conf.MaxSize {
+		return
+	}
+
+	conf.ds.Write("pastes", key, []byte(value))
+}
+
 func processContent(key, content string) {
 	conf.ds = getStoreConn()
 	defer conf.ds.Close()
@@ -94,13 +110,13 @@ func processContent(key, content string) {
 	// Find and save specific data.
 	switch {
 	case processCredentials(content, key):
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	case processEmails(content, key):
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	case processPrivKey(content, key):
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	case processAWSKeys(content, key):
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	default:
 	}
 
@@ -120,7 +136,7 @@ func processContent(key, content string) {
 	}
 
 	if save {
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	}
 
 	// Save pastes that match any of our keywords. Use these to find interesting
@@ -137,7 +153,7 @@ func processContent(key, content string) {
 	}
 
 	if save {
-		conf.ds.Write("pastes", key, []byte(content))
+		savePaste(key, content)
 	}
 }
 

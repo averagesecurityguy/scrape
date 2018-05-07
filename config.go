@@ -26,12 +26,13 @@ type Config struct {
 	ds       *store.Store
 	Keywords []*Keyword // A list of keywords to search for in the data.
 	Regexes  []*Regex   // A list of regular expressions to test against data.
-	Buckets  []string   `json:"buckets"`  // List of buckets we need to create.
+	Buckets  []string   `json:"buckets"`       // List of buckets we need to create.
 	DbFile   string     `json:"database_file"` // File to use for the Store database.
 	MaxSize  int        `json:"max_size"`      // Do not save files larger than this many bytes.
 	MaxTime  int        `json:"max_time"`      // Max time, in seconds, to store previously downloaded keys.
 	Sleep    int        // Time, in seconds, to wait between each run.
 	GhToken  string     `json:"github_token"` // Github API token
+	Save     bool
 }
 
 func newConfig() Config {
