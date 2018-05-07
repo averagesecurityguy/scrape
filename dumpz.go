@@ -50,7 +50,6 @@ func (d *Dump) Process() {
 	processContent(d.Key, d.Content)
 }
 
-
 func scrapeDumpz() {
 	var ids DumpList
 
