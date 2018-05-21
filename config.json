@@ -6,19 +6,46 @@
     "github_token": "github_api_token",
     "save": true,
 	"buckets": [
-		"awskeys",
-		"emails",
-		"creds",
-		"privkeys",
 		"keywords",
 		"regexes",
 		"pastes"
 	],
     "regexes": [
-        {"regex": "\\$[0-9]\\$[a-zA-Z0-9]\\$[a-zA-Z0-9./=]+", "prefix": "pwhash"},
-        {"regex": "[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+", "prefix": "pwhash"},
-        {"regex": "[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}", "prefix": "pwhash"},
-        {"regex": "CVE-[0-9]{4}-[0-9]{4,5}", "prefix": "exploit"}
+        {
+            "regex": "(?m)^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+):([^ ~/$| ].*$)",
+            "prefix": "creds",
+            "match": "all"
+        },
+        {
+            "regex": "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+            "prefix": "email",
+            "match": "all"
+        },
+        {
+            "regex": "(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY",
+            "prefix": "privkey",
+            "match": "all"
+        },
+        {
+            "regex": "\\$[0-9]\\$[a-zA-Z0-9]+\\$[a-zA-Z0-9./=]+",
+            "prefix": "pwhash",
+            "match": "all"
+        },
+        {
+            "regex": "[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+",
+            "prefix": "pwhash",
+            "match": "all"
+        },
+        {
+            "regex": "[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}",
+            "prefix": "pwhash",
+            "match": "all"
+        },
+        {
+            "regex": "CVE-[0-9]{4}-[0-9]{4,5}",
+            "prefix": "exploit",
+            "match": "one"
+        }
     ],
     "keywords": [
         {"keyword": "`password`", "prefix": "sqlpass"},

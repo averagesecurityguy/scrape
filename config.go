@@ -19,6 +19,7 @@ type Regex struct {
 	Regex    string
 	compiled *regexp.Regexp
 	Prefix   string
+	Match    string
 }
 
 type Config struct {
