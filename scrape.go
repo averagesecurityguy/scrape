@@ -47,7 +47,6 @@ func cleanKeys() {
 func scrape() {
 	scrapePastes()
 	scrapeGists()
-	scrapeDumpz()
 }
 
 func main() {
