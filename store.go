@@ -43,12 +43,16 @@ func createBucket(db *bolt.DB, bucket string) error {
 	})
 }
 
-func writeDB(db *bolt.DB, bucket, key string, value []byte) error {
-	return db.Update(func(tx *bolt.Tx) error {
+func writeDB(db *bolt.DB, bucket, key string, value []byte) {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 
 		return b.Put([]byte(key), []byte(value))
 	})
+
+	if err != nil {
+		log.Printf("[-] Could not write key: %s\n", err)
+	}
 }
 
 func readDB(db *bolt.DB, bucket, key string) []byte {
@@ -64,10 +68,14 @@ func readDB(db *bolt.DB, bucket, key string) []byte {
 	return val
 }
 
-func deleteDB(db *bolt.DB, bucket, key string) error {
-	return db.Update(func(tx *bolt.Tx) error {
+func deleteDB(db *bolt.DB, bucket, key string) {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 
 		return b.Delete([]byte(key))
 	})
+
+	if err != nil {
+		log.Printf("[-] Could not delete key: %s\n", err)
+	}
 }
