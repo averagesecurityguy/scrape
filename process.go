@@ -14,7 +14,7 @@ func savePaste(key, content string) {
 		return
 	}
 
-	conf.ds.Write("pastes", key, []byte(content))
+	writeDB(conf.db, "pastes", key, []byte(content))
 }
 
 func processRegexes(key, content string) {
@@ -32,7 +32,7 @@ func processRegexes(key, content string) {
 
 			for k := range items {
 				rKey := fmt.Sprintf("%s-%s-%d", r.Prefix, key, k)
-				conf.ds.Write("regexes", rKey, []byte(items[k]))
+				writeDB(conf.db, "regexes", rKey, []byte(items[k]))
 			}
 		case "one":
 			match := r.compiled.FindString(content)
@@ -40,7 +40,7 @@ func processRegexes(key, content string) {
 
 			if match != "" {
 				save = true
-				conf.ds.Write("regexes", rKey, []byte(match))
+				writeDB(conf.db, "regexes", rKey, []byte(match))
 			}
 		default:
 		}
@@ -59,7 +59,7 @@ func processKeywords(key, content string) {
 
 		if strings.Contains(strings.ToLower(content), strings.ToLower(kwd.Keyword)) {
 			save = true
-			conf.ds.Write("keywords", kwdKey, []byte(key))
+			writeDB(conf.db, "keywords", kwdKey, []byte(key))
 		}
 	}
 
@@ -68,10 +68,9 @@ func processKeywords(key, content string) {
 	}
 }
 
-
 func processContent(key, content string) {
-	conf.ds = getStoreConn()
-	defer conf.ds.Close()
+	conf.db = getDBConn()
+	defer conf.db.Close()
 
 	processRegexes(key, content)
 	processKeywords(key, content)
