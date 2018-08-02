@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/asggo/store"
+	"github.com/boltdb/bolt"
 )
 
 type Keyword struct {
@@ -24,7 +24,7 @@ type Regex struct {
 
 type Config struct {
 	keys     map[string]time.Time
-	ds       *store.Store
+	db       *bolt.DB
 	Keywords []*Keyword // A list of keywords to search for in the data.
 	Regexes  []*Regex   // A list of regular expressions to test against data.
 	Buckets  []string   `json:"buckets"`       // List of buckets we need to create.
