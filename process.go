@@ -31,16 +31,15 @@ func processRegexes(key, content string) {
 			}
 
 			for k := range items {
-				rKey := fmt.Sprintf("%s-%s-%d", r.Prefix, key, k)
-				writeDB(conf.db, "regexes", rKey, []byte(items[k]))
+				rKey := fmt.Sprintf("%s-%d", key, k)
+				writeDB(conf.db, r.Bucket, rKey, []byte(items[k]))
 			}
 		case "one":
 			match := r.compiled.FindString(content)
-			rKey := fmt.Sprintf("%s-%s", r.Prefix, key)
 
 			if match != "" {
 				save = true
-				writeDB(conf.db, "regexes", rKey, []byte(match))
+				writeDB(conf.db, r.Bucket, key, []byte(match))
 			}
 		default:
 		}
@@ -55,11 +54,10 @@ func processKeywords(key, content string) {
 	save := false
 	for i, _ := range conf.Keywords {
 		kwd := conf.Keywords[i]
-		kwdKey := fmt.Sprintf("%s-%s", kwd.Prefix, key)
 
 		if strings.Contains(strings.ToLower(content), strings.ToLower(kwd.Keyword)) {
 			save = true
-			writeDB(conf.db, "keywords", kwdKey, []byte(key))
+			writeDB(conf.db, kwd.Bucket, key, nil)
 		}
 	}
 

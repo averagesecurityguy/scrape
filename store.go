@@ -25,8 +25,14 @@ func getDBConn() *bolt.DB {
 func initDB() {
 	db := getDBConn()
 
-	for _, bucket := range conf.Buckets {
-		createBucket(db, bucket)
+	createBucket(db, "pastes")
+
+	for _, kw := range conf.Keywords {
+		createBucket(db, kw.Bucket)
+	}
+
+	for _, re := range conf.Regexes {
+		createBucket(db, re.Bucket)
 	}
 
 	db.Close()
