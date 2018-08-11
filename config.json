@@ -5,52 +5,47 @@
     "database_file": "data/scrape.db",
     "github_token": "github_api_token",
     "save": true,
-	"buckets": [
-		"keywords",
-		"regexes",
-		"pastes"
-	],
     "regexes": [
         {
             "regex": "^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+):([^ ~/$|: ]+)",
-            "prefix": "creds",
+            "bucket": "creds",
             "match": "all"
         },
         {
             "regex": "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
-            "prefix": "email",
+            "bucket": "email",
             "match": "all"
         },
         {
             "regex": "(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY",
-            "prefix": "privkey",
+            "bucket": "privkey",
             "match": "all"
         },
         {
             "regex": "\\$[0-9]\\$[a-zA-Z0-9]+\\$[a-zA-Z0-9./=]+",
-            "prefix": "pwhash",
+            "bucket": "pwhash",
             "match": "all"
         },
         {
             "regex": "[a-zA-Z0-9]+::[a-zA-Z0-9]{10}:[a-z0-9]{32}:[a-z0-9-]+",
-            "prefix": "pwhash",
+            "bucket": "pwhash",
             "match": "all"
         },
         {
             "regex": "[a-zA-Z0-9-_]+:[0-9]+:[a-z0-9]{32}:[a-z0-9]{32}",
-            "prefix": "pwhash",
+            "bucket": "pwhash",
             "match": "all"
         },
         {
             "regex": "CVE-[0-9]{4}-[0-9]{4,5}",
-            "prefix": "exploit",
+            "bucket": "exploit",
             "match": "one"
         }
     ],
     "keywords": [
-        {"keyword": "`password`", "prefix": "sqlpass"},
-        {"keyword": "proof of concept", "prefix": "exploit"},
-        {"keyword": "remote code execution", "prefix": "exploit"},
-        {"keyword": "fullz", "prefix": "carder"}
+        {"keyword": "`password`", "bucket": "sqlpass"},
+        {"keyword": "proof of concept", "bucket": "exploit"},
+        {"keyword": "remote code execution", "bucket": "exploit"},
+        {"keyword": "fullz", "bucket": "carder"}
     ]
 }
