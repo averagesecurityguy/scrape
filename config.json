@@ -4,10 +4,11 @@
     "sleep": 60,
     "database_file": "data/scrape.db",
     "github_token": "github_api_token",
+    "local_path": "",
     "save": true,
     "regexes": [
         {
-            "regex": "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+:([^~\/$|: ]+",
+            "regex": "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+:[^~\/$|: ]+",
             "bucket": "creds",
             "match": "all"
         },
