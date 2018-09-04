@@ -7,7 +7,7 @@
     "save": true,
     "regexes": [
         {
-            "regex": "^([a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+):([^ ~/$|: ]+)",
+            "regex": "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+:([^~\/$|: ]+",
             "bucket": "creds",
             "match": "all"
         },
