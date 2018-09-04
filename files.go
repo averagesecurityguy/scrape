@@ -45,8 +45,6 @@ func scrapeFiles() {
 		return
 	}
 
-	var files []*File
-
 	log.Println("[+] Checking for local pastes.")
 
 	filepath.Walk(conf.LocalPath, func(path string, info os.FileInfo, err error) error {
