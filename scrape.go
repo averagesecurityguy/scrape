@@ -20,6 +20,7 @@ func cleanKeys() {
 func scrape() {
 	scrapePastes()
 	scrapeGists()
+	scrapeFiles()
 }
 
 func main() {
