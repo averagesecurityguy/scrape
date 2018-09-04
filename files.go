@@ -31,6 +31,15 @@ func (f *File) Delete() {
 	os.Remove(f.Path)
 }
 
+func newFile(path string) *File {
+	f := new(File)
+
+	f.Path = path
+	f.Key = filepath.Base(path)
+
+	return f
+}
+
 func scrapeFiles() {
 	if conf.LocalPath == "" {
 		return
@@ -51,15 +60,11 @@ func scrapeFiles() {
 			return nil
 		}
 
-		files = append(files, &File{Path: path, Key: filepath.Base(path)})
-
-		return nil
-	})
-
-	for i := range files {
-		f := files[i]
+		f := newFile(path)
 		f.Read()
 		f.Process()
 		f.Delete()
-	}
+
+		return nil
+	})
 }
