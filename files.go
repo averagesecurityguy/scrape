@@ -19,6 +19,7 @@ func (f *File) Read() {
 		log.Printf("[-] Could not read file %s\n", f.Path)
 		f.Content = ""
 	} else {
+		log.Printf("[+] Reading file: %s\n", f.Key)
 		f.Content = string(content)
 	}
 }
