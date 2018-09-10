@@ -5,6 +5,7 @@ import (
 )
 
 var conf Config
+var db *Database
 
 func cleanKeys() {
 	now := time.Now()
@@ -17,19 +18,43 @@ func cleanKeys() {
 	}
 }
 
-func scrape() {
-	scrapePastes()
-	scrapeGists()
-	scrapeFiles()
+func initDatabase() {
+	db.CreateBucket("pastes")
+
+	for _, kw := range conf.Keywords {
+		db.CreateBucket(kw.Bucket)
+	}
+
+	for _, re := range conf.Regexes {
+		db.CreateBucket(re.Bucket)
+	}
+}
+
+func scrape(piChan chan<- *ProcessItem) {
+	for {
+		go scrapePastes(piChan)
+		go scrapeGists(piChan)
+		go scrapeFiles(piChan)
+
+		time.Sleep(time.Duration(conf.Sleep) * time.Second)
+		cleanKeys()
+	}
 }
 
 func main() {
 	conf = newConfig()
-	initDB()
+	db = newDatabase(conf.DbFile)
 
-	for {
-		scrape()
-		time.Sleep(time.Duration(conf.Sleep) * time.Second)
-		cleanKeys()
+	if db != nil {
+		initDatabase()
+
+		processItemChan := make(chan *ProcessItem, 100)
+		processSemaphore := make(chan struct{}, 10)
+
+		go scrape(processItemChan)
+
+		for item := range processItemChan {
+			go process(processSemaphore, item)
+		}
 	}
 }

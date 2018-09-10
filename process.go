@@ -2,74 +2,75 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
-func savePaste(key, content string) {
-	if conf.Save == false {
-		return
-	}
-
-	if len(content) > conf.MaxSize {
-		return
-	}
-
-	writeDB(conf.db, "pastes", key, []byte(content))
+type ProcessItem struct {
+	Source  string
+	Key     string
+	Content string
+	Save    bool
 }
 
-func processRegexes(key, content string) {
-	save := false
+func (p *ProcessItem) Write() {
+	if (conf.Save == false) || (p.Save == false) {
+		return
+	}
+
+	if len(p.Content) > conf.MaxSize {
+		return
+	}
+
+	db.Write("pastes", p.Key, []byte(p.Content))
+}
+
+func (p *ProcessItem) Regexes() {
 	for i, _ := range conf.Regexes {
 		r := conf.Regexes[i]
 
 		switch r.Match {
 		case "all":
-			items := r.compiled.FindAllString(content, -1)
+			items := r.compiled.FindAllString(p.Content, -1)
 
 			if items != nil {
-				save = true
+				p.Save = true
 			}
 
 			for k := range items {
-				rKey := fmt.Sprintf("%s-%d", key, k)
-				writeDB(conf.db, r.Bucket, rKey, []byte(items[k]))
+				rKey := fmt.Sprintf("%s-%d", p.Key, k)
+				db.Write(r.Bucket, rKey, []byte(items[k]))
 			}
 		case "one":
-			match := r.compiled.FindString(content)
+			match := r.compiled.FindString(p.Content)
 
 			if match != "" {
-				save = true
-				writeDB(conf.db, r.Bucket, key, []byte(match))
+				p.Save = true
+				db.Write(r.Bucket, p.Key, []byte(match))
 			}
 		default:
 		}
 	}
-
-	if save {
-		savePaste(key, content)
-	}
 }
 
-func processKeywords(key, content string) {
-	save := false
+func (p *ProcessItem) Keywords() {
 	for i, _ := range conf.Keywords {
 		kwd := conf.Keywords[i]
 
-		if strings.Contains(strings.ToLower(content), strings.ToLower(kwd.Keyword)) {
-			save = true
-			writeDB(conf.db, kwd.Bucket, key, nil)
+		if strings.Contains(strings.ToLower(p.Content), strings.ToLower(kwd.Keyword)) {
+			p.Save = true
+			db.Write(kwd.Bucket, p.Key, nil)
 		}
-	}
-
-	if save {
-		savePaste(key, content)
 	}
 }
 
-func processContent(key, content string) {
-	conf.db = getDBConn()
-	defer conf.db.Close()
+func process(sem chan struct{}, pi *ProcessItem) {
+	log.Printf("[+] Processing %s:%s.\n", pi.Source, pi.Key)
+	sem <- struct{}{}
 
-	processRegexes(key, content)
-	processKeywords(key, content)
+	pi.Regexes()
+	pi.Keywords()
+	pi.Write()
+
+	<-sem
 }

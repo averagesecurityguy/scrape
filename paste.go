@@ -9,14 +9,7 @@ import (
 type Paste struct {
 	ScrapeUrl string `json:"scrape_url"`
 	Url       string `json:"full_url"`
-	Date      string
 	Key       string
-	Size      int `json:",string"`
-	Expire    int `json:",string"`
-	Title     string
-	Syntax    string
-	User      string
-	Error     string
 	Content   string
 }
 
@@ -33,11 +26,7 @@ func (p *Paste) Download() {
 	conf.keys[p.Key] = time.Now()
 }
 
-func (p *Paste) Process() {
-	processContent(p.Key, p.Content)
-}
-
-func scrapePastes() {
+func scrapePastes(c chan<- *ProcessItem) {
 	var pastes []*Paste
 
 	log.Println("[+] Checking for new pastes.")
@@ -54,6 +43,8 @@ func scrapePastes() {
 	for i, _ := range pastes {
 		p := pastes[i]
 		p.Download()
-		p.Process()
+
+		item := &ProcessItem{Source: "Pastebin", Key: p.Key, Content: p.Content}
+		c <- item
 	}
 }

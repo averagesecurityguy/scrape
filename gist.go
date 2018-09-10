@@ -53,13 +53,7 @@ func (g *Gist) Download() {
 	conf.keys[g.Key] = time.Now()
 }
 
-func (g *Gist) Process() {
-	for _, gist := range g.files {
-		processContent(g.Key, gist.Content)
-	}
-}
-
-func scrapeGists() {
+func scrapeGists(c chan<- *ProcessItem) {
 	var gists []*Gist
 
 	log.Println("[+] Checking for new gists.")
@@ -76,6 +70,10 @@ func scrapeGists() {
 	for i, _ := range gists {
 		g := gists[i]
 		g.Download()
-		g.Process()
+
+		for _, gist := range g.files {
+			item := &ProcessItem{Source: "Gist", Key: g.Key, Content: gist.Content}
+			c <- item
+		}
 	}
 }

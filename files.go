@@ -7,63 +7,36 @@ import (
 	"path/filepath"
 )
 
-type File struct {
-	Path    string
-	Key     string
-	Content string
-}
-
-func (f *File) Read() {
-	content, err := ioutil.ReadFile(f.Path)
-	if err != nil {
-		log.Printf("[-] Could not read file %s\n", f.Path)
-		f.Content = ""
-	} else {
-		log.Printf("[+] Reading file: %s\n", f.Key)
-		f.Content = string(content)
-	}
-}
-
-func (f *File) Process() {
-	processContent(f.Key, f.Content)
-}
-
-func (f *File) Delete() {
-	os.Remove(f.Path)
-}
-
-func newFile(path string) *File {
-	f := new(File)
-
-	f.Path = path
-	f.Key = filepath.Base(path)
-
-	return f
-}
-
-func scrapeFiles() {
+func scrapeFiles(c chan<- *ProcessItem) {
 	if conf.LocalPath == "" {
 		return
 	}
 
 	log.Println("[+] Checking for local pastes.")
 
-	filepath.Walk(conf.LocalPath, func(path string, info os.FileInfo, err error) error {
+	files, err := ioutil.ReadDir(conf.LocalPath)
+	if err != nil {
+		log.Printf("[-] Error reading %s: %s\n", conf.LocalPath, err)
+		return
+	}
+
+	// Process files in batches
+	for _, file := range files[:conf.FileBatchSize] {
+		if file.IsDir() {
+			log.Printf("[+] Skipping directory %s\n", conf.LocalPath)
+			continue
+		}
+
+		path := filepath.Join(conf.LocalPath, file.Name())
+		content, err := ioutil.ReadFile(path)
 		if err != nil {
-			log.Printf("[-] Error reading %s: %s\n", conf.LocalPath, err.Error())
-			return nil
+			log.Printf("[-] Could not read file %s\n", path)
+			continue
 		}
 
-		if info.IsDir() {
-			log.Printf("[+] Skipping directory %s\n", path)
-			return nil
-		}
+		item := &ProcessItem{Source: "Local", Key: file.Name(), Content: string(content)}
+		c <- item
 
-		f := newFile(path)
-		f.Read()
-		f.Process()
-		f.Delete()
-
-		return nil
-	})
+		os.Remove(path)
+	}
 }

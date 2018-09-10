@@ -7,39 +7,32 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func getDBConn() *bolt.DB {
+type Database struct {
+	conn *bolt.DB
+}
+
+func newDatabase(fileName string) *Database {
+	db := new(Database)
+
 	for tries := 1; tries < 20; tries += 2 {
 		timeout := 1 << uint(tries) * time.Millisecond
 
-		db, err := bolt.Open(conf.DbFile, 0640, &bolt.Options{Timeout: timeout})
+		conn, err := bolt.Open(fileName, 0640, &bolt.Options{Timeout: timeout})
 		if err == nil {
+			db.conn = conn
 			return db
 		}
 
 		log.Printf("[-] Database locked waiting...\n")
 	}
 
+	log.Printf("[-] Could not connect to the database: %s\n", fileName)
+
 	return nil
 }
 
-func initDB() {
-	db := getDBConn()
-
-	createBucket(db, "pastes")
-
-	for _, kw := range conf.Keywords {
-		createBucket(db, kw.Bucket)
-	}
-
-	for _, re := range conf.Regexes {
-		createBucket(db, re.Bucket)
-	}
-
-	db.Close()
-}
-
-func createBucket(db *bolt.DB, bucket string) error {
-	return db.Update(func(tx *bolt.Tx) error {
+func (db *Database) CreateBucket(bucket string) error {
+	return db.conn.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(bucket))
 		if err != nil {
 			return err
@@ -49,8 +42,8 @@ func createBucket(db *bolt.DB, bucket string) error {
 	})
 }
 
-func writeDB(db *bolt.DB, bucket, key string, value []byte) {
-	err := db.Update(func(tx *bolt.Tx) error {
+func (db *Database) Write(bucket, key string, value []byte) {
+	err := db.conn.Batch(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 
 		return b.Put([]byte(key), []byte(value))
@@ -61,10 +54,10 @@ func writeDB(db *bolt.DB, bucket, key string, value []byte) {
 	}
 }
 
-func readDB(db *bolt.DB, bucket, key string) []byte {
+func (db *Database) Read(bucket, key string) []byte {
 	var val []byte
 
-	db.View(func(tx *bolt.Tx) error {
+	db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		val = b.Get([]byte(key))
 
@@ -74,8 +67,8 @@ func readDB(db *bolt.DB, bucket, key string) []byte {
 	return val
 }
 
-func deleteDB(db *bolt.DB, bucket, key string) {
-	err := db.Update(func(tx *bolt.Tx) error {
+func (db *Database) Delete(bucket, key string) {
+	err := db.conn.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 
 		return b.Delete([]byte(key))
