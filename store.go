@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/boltdb/bolt"
 )
+
+type WalkFunc func(key, val string)
 
 type Database struct {
 	conn *bolt.DB
@@ -52,6 +55,48 @@ func (db *Database) Write(bucket, key string, value []byte) {
 	if err != nil {
 		log.Printf("[-] Could not write key: %s\n", err)
 	}
+}
+
+func (db *Database) WalkBucket(bucket string, walkFn WalkFunc) error {
+	err := db.conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return fmt.Errorf("bucket %s does not exist", bucket)
+		}
+
+		c := b.Cursor()
+
+		for k, v := c.Seek([]byte("")); k != nil; k, v = c.Next() {
+			walkFn(string(k), string(v))
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) Buckets() ([]string, error) {
+	var buckets []string
+
+	err := db.conn.View(func(tx *bolt.Tx) error {
+		tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			buckets = append(buckets, string(name))
+			return nil
+		})
+
+		return nil
+	})
+
+	if err != nil {
+		return buckets, err
+	}
+
+	return buckets, nil
 }
 
 func (db *Database) Read(bucket, key string) []byte {

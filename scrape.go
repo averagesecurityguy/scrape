@@ -48,6 +48,8 @@ func main() {
 	if db != nil {
 		initDatabase()
 
+		go startWebServer()
+
 		processItemChan := make(chan *ProcessItem, 100)
 		processSemaphore := make(chan struct{}, 10)
 
