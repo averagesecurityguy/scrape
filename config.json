@@ -3,9 +3,11 @@
     "max_time": 3600,
     "sleep": 60,
     "database_file": "data/scrape.db",
-    "github_token": "github_api_token",
+    "github_token": "8dea885bdf19c3d8247d761dd7f2684638c7f0d3",
     "local_path": "",
     "save": true,
+    "cert_file": "cert.pem",
+    "key_file": "key.pem",
     "regexes": [
         {
             "regex": "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}:[^~\/$|: \n]+",

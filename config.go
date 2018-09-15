@@ -35,6 +35,8 @@ type Config struct {
 	Save          bool
 	LocalPath     string `json:"local_path"`
 	FileBatchSize int    `json:"file_batch_size"`
+	CertFile      string `json:"cert_file"`
+	KeyFile       string `json:"key_file"`
 }
 
 func newConfig() Config {
