@@ -3,7 +3,7 @@
     "max_time": 3600,
     "sleep": 60,
     "database_file": "data/scrape.db",
-    "github_token": "8dea885bdf19c3d8247d761dd7f2684638c7f0d3",
+    "github_token": "github_api_token",
     "local_path": "",
     "save": true,
     "cert_file": "cert.pem",
