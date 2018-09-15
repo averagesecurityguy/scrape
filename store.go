@@ -99,7 +99,7 @@ func (db *Database) Buckets() ([]string, error) {
 	return buckets, nil
 }
 
-func (db *Database) Read(bucket, key string) []byte {
+func (db *Database) Read(bucket, key string) string {
 	var val []byte
 
 	db.conn.View(func(tx *bolt.Tx) error {
@@ -109,7 +109,7 @@ func (db *Database) Read(bucket, key string) []byte {
 		return nil
 	})
 
-	return val
+	return string(val)
 }
 
 func (db *Database) Delete(bucket, key string) {
