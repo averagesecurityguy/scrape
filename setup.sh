@@ -5,6 +5,7 @@ USER=scrape
 GO_BIN=go
 
 # Create service user account
+# Comment out these lines to prevent creating a new user account.
 echo "Adding $USER account."
 pass=$(head -c 12 /dev/urandom | base64)
 useradd -s /bin/bash $USER

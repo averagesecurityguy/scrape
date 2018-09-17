@@ -13,11 +13,10 @@ To use scrape with Github Gists, you will need to create a read-only Github API 
 To use scrape to parse files in a local directory, define the directory in the config.json file. Scrape will parse the files in batches of 100 by default. The batch size is configurable in the config.json file. Keep in mind, that after a file is processed it will be deleted from the directory.
 
 ## Installation
-You will first need to clone the Git repository with `git clone https://github.com/averagesecurityguy/scrape`. Once you have downloaded the repository, run the setup.sh script from the repository with sudo permissions. This will generate a new user called scrape and install the service.sh init script. If you already have a service account you want to use on your machine, then modify the setup.sh script to use the account name you want.
+You will first need to clone the Git repository with `git clone https://github.com/averagesecurityguy/scrape`. Once you have downloaded the repository, run the setup.sh script from the repository with sudo permissions. This will generate a new user called scrape and install the service.sh init script. If you already have a service account you want to use on your machine, modify the setup.sh script to disable creating the new account and modify service.sh to use the account you want..
 
 ## Viewing Gathered Data
-While scrape is running you can visit https://127.0.0.1:5000 to view the data that has been gathered. You will need to
-create a TLS certificate and key and define their locations in the config.json file. When scrape is not runnig you can use the view tool in the install directory to view scrape data.
+While scrape is running you can visit https://127.0.0.1:5000 to view the data that has been gathered. You will need to create a TLS certificate and key and define their locations in the config.json file. When scrape is not runnig you can use the view tool in the install directory to view scrape data.
 
 ### View Command Usage
 ```
