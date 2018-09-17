@@ -14,3 +14,21 @@ To use scrape to parse files in a local directory, define the directory in the c
 
 ## Installation
 You will first need to clone the Git repository with `git clone https://github.com/averagesecurityguy/scrape`. Once you have downloaded the repository, run the setup.sh script from the repository with sudo permissions. This will generate a new user called scrape and install the service.sh init script. If you already have a service account you want to use on your machine, then modify the setup.sh script to use the account name you want.
+
+## Viewing Gathered Data
+While scrape is running you can visit https://127.0.0.1:5000 to view the data that has been gathered. You will need to
+create a TLS certificate and key and define their locations in the config.json file. When scrape is not runnig you can use the view tool in the install directory to view scrape data.
+
+### View Command Usage
+```
+Usage:
+    view filename action [arguments]
+
+Actions:
+    buckets                       Get a list of buckets.
+    read <bucketname> <key>       Get the value of the key in the bucket.
+    keys <bucketname>             Get a list of keys in a bucket.
+    vals <bucketname>             Get a list of values in a bucket.
+    search <bucketname> <string>  Get a list of keys from the bucket where the
+                                  value contains the given string.
+```
