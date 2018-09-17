@@ -89,7 +89,7 @@ func (db *Database) ReadBatch(ds *DataSet, count int) error {
 
 		c := b.Cursor()
 
-		for k, v := c.Seek([]byte(ds.Next)); k != nil && len(ds.Batch) <= count; k, v = c.Next() {
+		for k, v := c.Seek([]byte(ds.Next)); k != nil && len(ds.Batch) < count; k, v = c.Next() {
 			ds.Batch[string(k)] = string(v)
 			ds.Next = string(k)
 		}
