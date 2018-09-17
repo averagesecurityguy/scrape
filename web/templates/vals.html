@@ -1,0 +1,13 @@
+{{ define "content" }}
+<h1>{{ .Bucket }}</h1>
+<ul>
+{{ range $v := .Batch }}
+    <li>{{ $v }}</li>
+{{end}}
+</ul>
+
+{{ if .Next }}
+<a href="/vals/{{ .Bucket }}/{{ .Next }}">Next</a>
+{{ end }}
+
+{{ end }}
