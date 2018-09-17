@@ -175,7 +175,7 @@ func startWebServer() {
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  120 * time.Second,
-		Addr:         "127.0.0.1:5000",
+		Addr:         conf.WebServerAddr,
 		Handler:      r,
 	}
 

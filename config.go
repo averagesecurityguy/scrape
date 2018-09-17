@@ -38,6 +38,7 @@ type Config struct {
 	CertFile      string `json:"cert_file"`
 	KeyFile       string `json:"key_file"`
 	WebBatchSize  int    `json:"web_batch_size"` // How many items to display per web page.
+	WebServerAddr string `json:"web_server_address"`
 }
 
 func newConfig() Config {
@@ -67,6 +68,10 @@ func newConfig() Config {
 
 	if c.WebBatchSize == 0 {
 		c.WebBatchSize = 25
+	}
+
+	if c.WebServerAddr == "" {
+		c.WebServerAddr = "127.0.0.1:5000"
 	}
 
 	return c
