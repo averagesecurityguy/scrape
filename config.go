@@ -37,6 +37,7 @@ type Config struct {
 	FileBatchSize int    `json:"file_batch_size"`
 	CertFile      string `json:"cert_file"`
 	KeyFile       string `json:"key_file"`
+	WebBatchSize     int `json:"web_batch_size"` // How many items to display per web page.
 }
 
 func newConfig() Config {
@@ -62,6 +63,10 @@ func newConfig() Config {
 
 	if c.FileBatchSize == 0 {
 		c.FileBatchSize = 100
+	}
+
+	if c.WebBatchSize == 0 {
+		c.WebBatchSize = 25
 	}
 
 	return c
