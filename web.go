@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"html"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -15,8 +12,8 @@ import (
 
 type Value struct {
 	Bucket string
-	Key string
-	Value string
+	Key    string
+	Value  string
 }
 
 func NewValue(bucket, key string) *Value {
@@ -31,8 +28,8 @@ func NewValue(bucket, key string) *Value {
 
 type DataSet struct {
 	Bucket string
-	Batch map[string]string
-	Next string
+	Batch  map[string]string
+	Next   string
 }
 
 func NewDataSet(bucket string) *DataSet {
@@ -46,9 +43,9 @@ func NewDataSet(bucket string) *DataSet {
 
 type SearchSet struct {
 	Bucket string
-	Term string
-	Keys []string
-	Next string
+	Term   string
+	Keys   []string
+	Next   string
 }
 
 func NewSearchSet(bucket, next, term string) *SearchSet {

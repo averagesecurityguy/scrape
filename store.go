@@ -81,7 +81,7 @@ func (db *Database) WalkBucket(bucket string, walkFn WalkFunc) error {
 }
 
 func (db *Database) ReadBatch(ds *DataSet, count int) error {
-	 return db.conn.View(func(tx *bolt.Tx) error {
+	return db.conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ds.Bucket))
 		if b == nil {
 			return fmt.Errorf("bucket %s does not exist", ds.Bucket)
