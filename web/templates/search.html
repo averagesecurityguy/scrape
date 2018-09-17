@@ -1,0 +1,13 @@
+{{ define "content" }}
+<h1>Searching {{ .Bucket }} for {{ .Term }}</h1>
+<ul>
+{{ range .Keys }}
+    <li><a href="/read/{{ $.Bucket }}/{{ . }}">{{ . }}</a></li>
+{{end}}
+</ul>
+
+{{ if .Next }}
+<a href="/search/{{ .Bucket }}/{{ .Term }}/{{ .Next }}">Next</a>
+{{ end }}
+
+{{ end }}

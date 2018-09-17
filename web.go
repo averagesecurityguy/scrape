@@ -13,6 +13,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Value struct {
+	Bucket string
+	Key string
+	Value string
+}
+
+func NewValue(bucket, key string) *Value {
+	v := new(Value)
+
+	v.Bucket = bucket
+	v.Key = key
+	v.Value = db.Read(bucket, key)
+
+	return v
+}
+
 type DataSet struct {
 	Bucket string
 	Batch map[string]string
@@ -28,35 +44,23 @@ func NewDataSet(bucket string) *DataSet {
 	return d
 }
 
-
-var header []byte
-var footer []byte
-var beginList = []byte("<ul>\n")
-var endList = []byte("</ul>\n")
-
-func escape(str string) string {
-	return html.EscapeString(str)
+type SearchSet struct {
+	Bucket string
+	Term string
+	Keys []string
+	Next string
 }
 
-func bucketLi(item string) []byte {
-	item = escape(item)
+func NewSearchSet(bucket, next, term string) *SearchSet {
+	s := new(SearchSet)
 
-	return []byte(fmt.Sprintf("<li><a href=\"/keys/%s\">%s</a></li>\n", item, item))
+	s.Bucket = bucket
+	s.Term = term
+	s.Next = next
+
+	return s
 }
 
-func pre(data string) []byte {
-	data = escape(data)
-
-	return []byte(fmt.Sprintf("<pre>\n%s\n</pre>\n", data))
-}
-
-func heading(header string) []byte {
-	header = escape(header)
-
-	return []byte(fmt.Sprintf("<h2>%s</h2>\n", header))
-}
-
-// buckets  Returns a list of buckets.
 func buckets(w http.ResponseWriter, r *http.Request) {
 	buckets, err := db.Buckets()
 	if err != nil {
@@ -64,23 +68,27 @@ func buckets(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not read buckets", 500)
 	}
 
-	w.Write(header)
-	w.Write(heading("Buckets"))
-	w.Write(beginList)
-	for b := range buckets {
-		w.Write(bucketLi(buckets[b]))
+	t, err := template.ParseFiles("web/templates/layout.html", "web/templates/buckets.html")
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
 	}
-	w.Write(endList)
-	w.Write(footer)
+
+	t.ExecuteTemplate(w, "layout", buckets)
 }
 
 func read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	w.Write(header)
-	w.Write(heading(fmt.Sprintf("%s - %s", vars["bucket"], vars["key"])))
-	w.Write(pre(escape(db.Read(vars["bucket"], vars["key"]))))
-	w.Write(footer)
+	t, err := template.ParseFiles("web/templates/layout.html", "web/templates/read.html")
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	val := NewValue(vars["bucket"], vars["key"])
+
+	t.ExecuteTemplate(w, "layout", val)
 }
 
 func keys(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +96,7 @@ func keys(w http.ResponseWriter, r *http.Request) {
 	ds := NewDataSet(vars["bucket"])
 	ds.Next = vars["next"]
 
-	err := db.ReadBatch(ds, 100)
+	err := db.ReadBatch(ds, conf.WebBatchSize)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -108,7 +116,7 @@ func vals(w http.ResponseWriter, r *http.Request) {
 	ds := NewDataSet(vars["bucket"])
 	ds.Next = vars["next"]
 
-	err := db.ReadBatch(ds, 100)
+	err := db.ReadBatch(ds, conf.WebBatchSize)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -126,34 +134,46 @@ func vals(w http.ResponseWriter, r *http.Request) {
 func search(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	w.Write(header)
-	w.Write(heading(fmt.Sprintf("Searching %s for %s", vars["bucket"], vars["term"])))
-	w.Write(beginList)
-	err := db.WalkBucket(vars["bucket"], func(key, val string) {
-		if strings.Contains(val, vars["term"]) {
-			w.Write(keyLi(vars["bucket"], key))
-		}
-	})
+	ss := NewSearchSet(vars["bucket"], vars["next"], vars["term"])
 
+	for len(ss.Keys) < conf.WebBatchSize {
+		temp := NewDataSet(ss.Bucket)
+		temp.Next = ss.Next
+
+		err := db.ReadBatch(temp, conf.WebBatchSize)
+		if err != nil {
+			break
+		}
+
+		for k, v := range temp.Batch {
+			if strings.Contains(v, vars["term"]) {
+				ss.Keys = append(ss.Keys, k)
+				ss.Next = k
+			}
+		}
+	}
+
+	t, err := template.ParseFiles("web/templates/layout.html", "web/templates/search.html")
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
-	w.Write(endList)
-	w.Write(footer)
+
+	t.ExecuteTemplate(w, "layout", ss)
 }
 
 func startWebServer() {
-	header, _ = ioutil.ReadFile("web/templates/header.html")
-	footer, _ = ioutil.ReadFile("web/templates/footer.html")
-
 	r := mux.NewRouter()
 	r.HandleFunc("/", buckets)
 	r.HandleFunc("/keys/{bucket}", keys)
 	r.HandleFunc("/keys/{bucket}/{next}", keys)
 	r.HandleFunc("/vals/{bucket}", vals)
+	r.HandleFunc("/vals/{bucket}/{next}", vals)
 	r.HandleFunc("/read/{bucket}/{key}", read)
 	r.HandleFunc("/search/{bucket}/{term}", search)
+	r.HandleFunc("/search/{bucket}/{term}/{next}", search)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
 	srv := &http.Server{
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 30 * time.Second,

@@ -1,0 +1,8 @@
+{{ define "content" }}
+<h1>Buckets</h1>
+<ul>
+{{ range . }}
+    <li><a href="/keys/{{ . }}">{{ . }}</a></li>
+{{end}}
+</ul>
+{{ end }}
