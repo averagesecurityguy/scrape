@@ -80,6 +80,28 @@ func (db *Database) WalkBucket(bucket string, walkFn WalkFunc) error {
 	return nil
 }
 
+func (db *Database) ReadBatch(ds *DataSet, count int) error {
+	 return db.conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(ds.Bucket))
+		if b == nil {
+			return fmt.Errorf("bucket %s does not exist", ds.Bucket)
+		}
+
+		c := b.Cursor()
+
+		for k, v := c.Seek([]byte(ds.Next)); k != nil && len(ds.Batch) <= count; k, v = c.Next() {
+			ds.Batch[string(k)] = string(v)
+			ds.Next = string(k)
+		}
+
+		if len(ds.Batch) != count {
+			ds.Next = ""
+		}
+
+		return nil
+	})
+}
+
 func (db *Database) Buckets() ([]string, error) {
 	var buckets []string
 
