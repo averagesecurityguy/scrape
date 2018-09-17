@@ -15,5 +15,7 @@ sudo service scrape stop
 
 cp bin/scrape ${INSTALL_DIR}
 cp bin/view ${INSTALL_DIR}
+cp -R web ${INSTALL_DIR}
+
 # Start Service
 sudo service scrape start
