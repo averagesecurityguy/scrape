@@ -1,5 +1,5 @@
 {{ define "content" }}
-<h1>Searching {{ .Bucket }} for {{ .Term }}</h1>
+<h2>Searching {{ .Bucket }} for {{ .Term }}</h2>
 <ul>
 {{ range .Keys }}
     <li><a href="/read/{{ $.Bucket }}/{{ . }}">{{ . }}</a></li>
