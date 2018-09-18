@@ -2,7 +2,11 @@
 <h1>{{ .Bucket }}</h1>
 <ul>
 {{ range $k, $v := .Batch }}
-    <li><a href="/read/{{ $.Bucket }}/{{ $k }}">{{ $k }}</a></li>
+    {{ if $v }}
+        <li><a href="/read/{{ $.Bucket }}/{{ $k }}">{{ $k }}</a></li>
+    {{ else }}
+        <li><a href="/read/pastes/{{ $k }}">{{ $k }}</a></li>
+    {{ end }}
 {{end}}
 </ul>
 
