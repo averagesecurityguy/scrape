@@ -1,5 +1,5 @@
 function search() {
-	term = document.getElementById("search").text;
+	term = document.getElementById("search").value;
 	bucket = document.getElementById("search").getAttribute("name");
 
 	url = "/search/" + bucket + "/" + term;
