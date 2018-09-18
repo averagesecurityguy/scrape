@@ -151,8 +151,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 		}
 
 		sort.Strings(keys)
-		log.Printf("ss.Keys: %q\n", ss.Keys)
-		log.Printf("Keys: %q\n", keys)
 
 		for _, key := range keys {
 			if strings.Contains(temp.Batch[key], vars["term"]) {
