@@ -1,5 +1,5 @@
 {{ define "content" }}
-<h2>{{ .Bucket }}</h2>
+<h2>Bucket: {{ .Bucket }}</h2>
 <ul>
 {{ range $k, $v := .Batch }}
     {{ if $v }}

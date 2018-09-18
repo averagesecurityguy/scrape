@@ -13,10 +13,10 @@ html {
 body {
   margin: 0 auto;
   padding: 0;
-  width: 100%;
+  width: 90%;
   min-width: 1080px;
   background-color: #fff;
-  font-family: "Century Gothic", Calibri, Tahoma, sans-serif;
+  font-family: Verdana, Arial, sans-serif;
   font-size: 16px;
   color: #000;
 }
@@ -24,9 +24,9 @@ body {
 h1, h2, h3, h4 {
   margin: 1em 0 0 0;
   padding: 0;
-  font-family: Copperplate, Cambria, Georgia, serif;
+  font-family: "Palatino Header", "Bookman Header", serif;
   color: #000;
-  font-weight: normal;
+  font-weight: bold;
 }
 
 h3 {
@@ -42,6 +42,7 @@ p {
 }
 
 a {
+  font-size: 1.2em;
   color: #000;
   -webkit-transition: opacity 0.2s linear;
   -moz-transition: opacity 0.2s linear;
@@ -53,10 +54,6 @@ a:hover {
   opacity: .5;
 }
 
-.extlink:visited {
-  color: #f00;
-}
-
 td a {
   padding: 0 1em;
 }
@@ -65,107 +62,12 @@ ul {
   list-style-type: none;
 }
 
-header {
-  margin: 0 5%;
-  padding: 0;
-}
-
-header h1 {
-  margin: 2% 0 0 0;
-  padding: 0;
-  font-family: Copperplate, Cambria, Georgia, serif;
-  font-size: 3.25em;
-  color: #ffcc33;
-  display: inline;
-  float: left;
-}
-
-nav {
-  margin: 2% 0 0 0;
-  padding: 0;
-  display: inline;
-  float: right;
-}
-
-nav a {
-  display: inline-block;
-  text-decoration: none;
-  margin: 0 1em .5em 0;
-  padding: 0;
-  color: #000;
-  font-size: 1.4em;
-  border-bottom: none;
-}
-
-nav a:hover {
-  padding: 0;
-  border-bottom: 2px #000 solid;
-}
-
-.content {
-  margin: 0 5%;
-  padding: 0;
-  content: "";
-  clear: both;
-  height: 90%;
-}
-
-.note {
-  min-height: 0px;
-}
-
-table {
-  border-collapse: collapse;
-  border-spacing: .25em;
-}
-
-td {
-  vertical-align: top;
-}
-
-table, tr, td, th {
-  padding: .5em;
-  border: 1px solid #eee;
-}
-
-.column2 {
-    -ms-column-count: 2;
-    -moz-column-count: 2;
-    -webkit-column-count: 2;
-    column-count: 2;
-}
-
 pre {
-  font-size: .9em;
+  font-size: 1em;
   border: 1px solid #000000;
   background-color: #eeeeee;
   white-space: pre-wrap;
   padding: 1em;
-}
-
-textarea {
-  margin: 0;
-  padding: 0 1em;
-  width: 100%;
-  height: 73vh;
-  font-size: 1.1em;
-  font-family: "Courier New", Courier, monospace;
-}
-
-.scroll {
-  height: 68vh;
-  overflow: scroll;
-}
-
-.notes {
-  width: 50%;
-  float: right;
-}
-
-.details {
-  float: left;
-  width: 45%;
-  height: 75vh;
 }
 
 img {
