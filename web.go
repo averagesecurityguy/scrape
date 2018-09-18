@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -142,12 +143,31 @@ func search(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		for k, v := range temp.Batch {
-			if strings.Contains(v, vars["term"]) {
-				ss.Keys = append(ss.Keys, k)
-				ss.Next = k
+		// Need keys in sorted order to ensure we can set Next correctly.
+		var keys []string
+
+		for k := range temp.Batch {
+			keys = append(keys, k)
+		}
+
+		sort.Strings(keys)
+		log.Printf("ss.Keys: %q\n", ss.Keys)
+		log.Printf("Keys: %q\n", keys)
+
+		for _, key := range keys {
+			if strings.Contains(temp.Batch[key], vars["term"]) {
+				ss.Keys = append(ss.Keys, key)
 			}
 		}
+
+		// If we only have one key in our batch then there are no more keys
+		// to find so we are done.
+		if len(keys) == 1 {
+			ss.Next = ""
+			break
+		}
+
+		ss.Next = keys[len(keys)-1]
 	}
 
 	t, err := template.ParseFiles("web/templates/layout.html", "web/templates/search.html")
