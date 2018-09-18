@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"strings"
 )
 
@@ -65,7 +65,6 @@ func (p *ProcessItem) Keywords() {
 }
 
 func process(sem chan struct{}, pi *ProcessItem) {
-	log.Printf("[+] Processing %s:%s.\n", pi.Source, pi.Key)
 	sem <- struct{}{}
 
 	pi.Regexes()

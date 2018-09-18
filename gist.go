@@ -28,8 +28,6 @@ func (g *Gist) Download() {
 		return
 	}
 
-	log.Printf("[+] Downloading gist: %s\n", g.Key)
-
 	var gist map[string]*json.RawMessage
 	data := getGithub(g.Url)
 
@@ -66,6 +64,8 @@ func scrapeGists(c chan<- *ProcessItem) {
 		log.Println(string(resp))
 		return
 	}
+
+	log.Printf("[+] Processing %d gists.\n", len(gists))
 
 	for i, _ := range gists {
 		g := gists[i]

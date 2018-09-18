@@ -19,7 +19,7 @@ func (p *Paste) Download() {
 		return
 	}
 
-	log.Printf("[+] Downloading paste: %s\n", p.Key)
+	// log.Printf("[+] Downloading paste: %s\n", p.Key)
 
 	resp := get(p.ScrapeUrl)
 	p.Content = string(resp)
@@ -39,6 +39,8 @@ func scrapePastes(c chan<- *ProcessItem) {
 		log.Println(string(resp))
 		return
 	}
+
+	log.Printf("[+] Processing %d pastes.\n", len(pastes))
 
 	for i, _ := range pastes {
 		p := pastes[i]
