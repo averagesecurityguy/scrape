@@ -1,7 +1,7 @@
 {{ define "content" }}
 <h2>Bucket: {{ .Bucket }}</h2>
 <section>
-	<input type="text" id="search" name="{{ .Bucket }}">Search Term</input>
+	<input type="text" id="search" name="{{ .Bucket }}" placeholder="Search term." />
 	<input type="submit" value="Search" onclick="search();" />
 </section>
 <ul>
