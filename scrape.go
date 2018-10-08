@@ -32,9 +32,9 @@ func initDatabase() {
 
 func scrape(piChan chan<- *ProcessItem) {
 	for {
-		go scrapePastes(piChan)
-		go scrapeGists(piChan)
-		go scrapeFiles(piChan)
+		scrapePastes(piChan)
+		scrapeGists(piChan)
+		scrapeFiles(piChan)
 
 		time.Sleep(time.Duration(conf.Sleep) * time.Second)
 		cleanKeys()
