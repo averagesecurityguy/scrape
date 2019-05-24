@@ -21,7 +21,16 @@ func scrapeFiles(c chan<- *ProcessItem) {
 	}
 
 	// Process files in batches
-	for _, file := range files[:conf.FileBatchSize] {
+	batchSize := 0
+
+	switch {
+		case len(files) < conf.FileBatchSize:
+			batchSize = len(files)
+		default:
+			batchSize = conf.FileBatchSize
+	}
+
+	for _, file := range files[:batchSize] {
 		if file.IsDir() {
 			log.Printf("[+] Skipping directory %s\n", conf.LocalPath)
 			continue
