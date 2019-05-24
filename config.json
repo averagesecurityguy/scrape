@@ -20,7 +20,7 @@
             "match": "all"
         },
         {
-            "regex": "(?s)BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY",
+            "regex": "(?s)-----BEGIN (RSA|DSA|) PRIVATE KEY.*END (RSA|DSA|) PRIVATE KEY-----",
             "bucket": "privkey",
             "match": "all"
         },
