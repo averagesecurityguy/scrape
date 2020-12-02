@@ -32,6 +32,7 @@ func initDatabase() {
 
 func scrape(piChan chan<- *ProcessItem) {
 	for {
+		scrapeGithubEvents(piChan)
 		scrapePastes(piChan)
 		scrapeGists(piChan)
 		scrapeFiles(piChan)
