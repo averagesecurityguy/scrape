@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 )
 
@@ -37,6 +38,8 @@ func scrape(piChan chan<- *ProcessItem) {
 		scrapeGists(piChan)
 		scrapeFiles(piChan)
 
+
+		log.Printf("[*] Sleeping for %d seconds", conf.Sleep)
 		time.Sleep(time.Duration(conf.Sleep) * time.Second)
 		cleanKeys()
 	}
