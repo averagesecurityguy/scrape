@@ -43,7 +43,7 @@ func scrapeFiles(c chan<- *ProcessItem) {
 			continue
 		}
 
-		item := &ProcessItem{Source: "Local", Key: file.Name(), Content: string(content)}
+		item := &ProcessItem{Source: "Local", Location: path, Key: file.Name(), Content: string(content)}
 		c <- item
 
 		os.Remove(path)

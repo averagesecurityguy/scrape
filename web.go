@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,17 +15,21 @@ import (
 type Value struct {
 	Bucket string
 	Key    string
-	Value  string
+	Location string
+	Content  string
 }
 
 func NewValue(bucket, key string) *Value {
-	v := new(Value)
+	var s SaveItem
 
-	v.Bucket = bucket
-	v.Key = key
-	v.Value = db.Read(bucket, key)
+	data := db.Read(bucket, key)
+	err := json.Unmarshal([]byte(data), &s)
+	if err != nil {
+		log.Printf("[-] Could not unmarshal %s", key)
+		return &Value{Bucket: bucket, Key: key}
+	}
 
-	return v
+	return &Value{Bucket: bucket, Key: key, Location: s.Location, Content: s.Content}
 }
 
 type DataSet struct {

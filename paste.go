@@ -46,7 +46,7 @@ func scrapePastes(c chan<- *ProcessItem) {
 		p := pastes[i]
 		p.Download()
 
-		item := &ProcessItem{Source: "Pastebin", Key: p.Key, Content: p.Content}
+		item := &ProcessItem{Source: "Pastebin", Location: p.Url, Key: p.Key, Content: p.Content}
 		c <- item
 	}
 }

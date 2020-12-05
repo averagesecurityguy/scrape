@@ -5,6 +5,12 @@
 	<input type="text" id="search" name="{{ .Bucket }}" placeholder="Search term." />
 	<input type="submit" value="Search" onclick="search();" />
 </section>
-<pre>{{ .Value }}</pre>
+<section>
+	<h3>Location</h3>
+	<p><a href="{{ .Location }}">{{ .Location }}</a></p>
+
+	<h3>Content</h3>
+	<pre>{{ .Content }}</pre>
+</section>
 
 {{ end }}

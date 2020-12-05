@@ -72,7 +72,7 @@ func scrapeGists(c chan<- *ProcessItem) {
 		g.Download()
 
 		for _, gist := range g.files {
-			item := &ProcessItem{Source: "Gist", Key: g.Key, Content: gist.Content}
+			item := &ProcessItem{Source: "Gist", Location: gist.Url, Key: g.Key, Content: gist.Content}
 			c <- item
 		}
 	}

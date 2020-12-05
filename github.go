@@ -9,7 +9,7 @@ import (
 type PushEventCommit struct {
 	Key   string `json:"sha"`
 	Url   string
-	Files []string
+	Files []GithubCommitFile
 }
 
 type PushEvent struct {
@@ -26,6 +26,7 @@ type GithubEvent struct {
 
 type GithubCommitFile struct {
 	Url string `json:"raw_url"`
+	Content string
 }
 
 type GithubCommit struct {
@@ -48,9 +49,11 @@ func (p *PushEvent) Download() {
 			continue
 		}
 
-		for _, f := range ghc.Files {
-			file := getGithub(f.Url)
-			p.Commits[i].Files = append(p.Commits[i].Files, string(file))
+		for j := range ghc.Files {
+			f := ghc.Files[j]
+
+			f.Content = string(get(f.Url))
+			p.Commits[i].Files = append(p.Commits[i].Files, f)
 		}
 	}
 
@@ -87,8 +90,10 @@ func scrapeGithubEvents(c chan<- *ProcessItem) {
 
 			pe.Download()
 			for i := range pe.Commits {
-				for _, f := range pe.Commits[i].Files {
-					item := &ProcessItem{Source: "GithubCommit", Key: string(pe.Key), Content: f}
+				for j := range pe.Commits[i].Files {
+					f := pe.Commits[i].Files[j]
+
+					item := &ProcessItem{Source: "GithubCommit", Location: f.Url, Key: string(pe.Key), Content: f.Content}
 					c <- item
 				}
 			}
